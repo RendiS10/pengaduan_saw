@@ -1,0 +1,84 @@
+# Dependencies
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+config.php
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+error_log
+access_log
+
+# Cache and temporary files
+cache/
+tmp/
+temp/
+*.tmp
+*.cache
+
+# Uploaded files (bukti pengaduan)
+public/image/bukti_*
+public/uploads/
+
+# Database backups
+*.sql
+*.sqlite
+*.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP specific
+*.php~
+*.php.bak
+*.php.old
+
+# Session files
+sessions/
+*.sess
+
+# Configuration files with sensitive data
+config/database.php
+config/koneksi.php
+
+# Compiled files
+*.compiled
+*.min.js
+*.min.css
+
+# Test files
+/tests/
+test.php
+*_test.php
+
+# Documentation build
+/docs/build/ 
