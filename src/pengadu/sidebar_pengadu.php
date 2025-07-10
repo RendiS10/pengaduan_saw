@@ -7,40 +7,38 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pengadu') {
     exit;
 }
 ?>
-<?php // Sidebar Pengadu Responsive Bootstrap ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary flex-column align-items-start min-vh-100 p-3" style="width: 250px;">
-  <a class="navbar-brand mb-4" href="dashboard_pengadu.php">
-    <img src="#" alt="Logo" width="32" height="32" class="d-inline-block align-text-top me-2">
-    Pengaduan
-  </a>
-  <button class="navbar-toggler mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse w-100" id="sidebarMenu">
-    <ul class="navbar-nav flex-column w-100">
-      <li class="nav-item mb-2">
-        <a class="nav-link text-white" href="./dashboard_pengadu.php">
-          <i class="bi bi-house-door me-2"></i> Dashboard
-        </a>
-      </li>
-      <li class="nav-item mb-2">
-        <a class="nav-link text-white" href="./mengajukan_pengaduan.php">
-          <i class="bi bi-pencil-square me-2"></i> Ajukan Pengaduan
-        </a>
-      </li>
-      <li class="nav-item mb-2">
-        <a class="nav-link text-white" href="./kelola_status_pengaduan.php">
-          <i class="bi bi-list-check me-2"></i> Status Pengaduan
-        </a>
-      </li>
-      <li class="nav-item mt-4">
-        <button id="logoutBtn" class="nav-link text-white btn btn-link w-100 text-start" style="text-decoration:none;">
-          <i class="bi bi-box-arrow-right me-2"></i> Logout
-        </button>
-      </li>
-    </ul>
+<div class="sidebar bg-dark text-white" style="width: 250px; min-height: 100vh;">
+  <div class="p-3">
+    <h5 class="text-center mb-4">
+      <i class="fa-solid fa-user text-primary"></i>
+      <br>PENGADU
+    </h5>
+    
+    <nav class="nav flex-column">
+      <a class="nav-link text-white-50 mb-2" href="dashboard_pengadu.php">
+        <i class="fa-solid fa-tachometer-alt me-2"></i>
+        Dashboard
+      </a>
+      
+      <a class="nav-link text-white-50 mb-2" href="mengajukan_pengaduan.php">
+        <i class="fa-solid fa-paper-plane me-2"></i>
+        Ajukan Pengaduan
+      </a>
+      
+      <a class="nav-link text-white-50 mb-2" href="kelola_status_pengaduan.php">
+        <i class="fa-solid fa-clipboard-list me-2"></i>
+        Status Pengaduan
+      </a>
+      
+      <hr class="my-3">
+      
+      <a class="nav-link text-white-50 mb-2" href="logout.php">
+        <i class="fa-solid fa-sign-out-alt me-2"></i>
+        Logout
+      </a>
+    </nav>
   </div>
-</nav>
+</div>
 <!-- Bootstrap Icons CDN -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <style>

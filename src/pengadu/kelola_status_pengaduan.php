@@ -5,196 +5,228 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pengadu') {
     exit;
 }
 include_once '../../config/koneksi.php';
+
 $user_id = $_SESSION['user_id'];
-// Ambil riwayat pengaduan user
-$query = "SELECT * FROM pengaduan WHERE user_id='$user_id' ORDER BY tanggal_pengaduan DESC";
+
+// Proses hapus pengaduan
+if (isset($_POST['hapus_pengaduan'])) {
+    $id_pengaduan = $_POST['id_pengaduan'];
+    
+    // Ambil info file untuk dihapus
+    $query = "SELECT bukti_pengaduan FROM pengaduan WHERE id_pengaduan = $id_pengaduan AND user_id = $user_id";
+    $result = mysqli_query($conn, $query);
+    $pengaduan = mysqli_fetch_assoc($result);
+    
+    if ($pengaduan) {
+        // Hapus file bukti
+        if (file_exists('../../' . $pengaduan['bukti_pengaduan'])) {
+            unlink('../../' . $pengaduan['bukti_pengaduan']);
+        }
+        
+        // Hapus dari database
+        $delete_query = "DELETE FROM pengaduan WHERE id_pengaduan = $id_pengaduan AND user_id = $user_id";
+        if (mysqli_query($conn, $delete_query)) {
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"Pengaduan berhasil dihapus!",timer:1500,showConfirmButton:false});});</script>';
+        }
+    }
+}
+
+// Ambil daftar pengaduan user
+$query = "SELECT p.*, na.nama_alternatif 
+          FROM pengaduan p 
+          LEFT JOIN nilai_alternatif na ON p.alternatif = na.alternatif
+          WHERE p.user_id = $user_id 
+          ORDER BY p.tanggal_pengaduan DESC";
 $result = mysqli_query($conn, $query);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Status Pengaduan</title>
-  <?php include_once(__DIR__.'/../template/cdn_head.php'); ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Status Pengaduan</title>
+    <?php include_once(__DIR__.'/../template/cdn_head.php'); ?>
+    <style>
+        body { background: #f8fafc; }
+        .card { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: none; }
+        .status-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .status-diajukan { background: #ffeaa7; color: #d63031; }
+        .status-diproses { background: #74b9ff; color: #0984e3; }
+        .status-selesai { background: #55a3ff; color: #00b894; }
+        .priority-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        .btn-action { transition: all 0.3s; }
+        .btn-action:hover { transform: scale(1.05); }
+    </style>
 </head>
 <body class="d-flex">
-  <?php include('sidebar_pengadu.php'); ?>
-  <div class="flex-grow-1 p-4">
-    <h2>Status Pengaduan</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle">
-        <thead class="table-primary">
-          <tr>
-            <th>No</th>
-            <th>Jenis Pengaduan</th>
-            <th>Bukti</th>
-            <th>Status</th>
-            <th>Tanggal</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-        <?php
-        $no = 1;
-        while ($row = mysqli_fetch_assoc($result)) {
-          // Format tanggal ke WIB
-          $tanggal = $row['tanggal_pengaduan'];
-          // Asumsikan waktu di database sudah dalam waktu server (Waktu Windows/Laragon biasanya Asia/Jakarta)
-          // Jika ternyata waktu di database sudah WIB, cukup format saja tanpa konversi zona
-          $dt = new DateTime($tanggal);
-          $tanggal_wib = $dt->format('d-m-Y H:i:s') . ' WIB';
-          echo '<tr>';
-          echo '<td>' . $no++ . '</td>';
-          echo '<td>' . htmlspecialchars($row['alternatif']) . '</td>';
-          echo '<td>';
-          if ($row['bukti_pengaduan']) {
-            echo '<a href="../../' . htmlspecialchars($row['bukti_pengaduan']) . '" target="_blank">Lihat</a>';
-          } else {
-            echo '-';
-          }
-          echo '</td>';
-          echo '<td>' . htmlspecialchars($row['status']) . '</td>';
-          echo '<td>' . $tanggal_wib . '</td>';
-          echo '<td class="d-flex align-items-center gap-1">';
-          if ($row['status'] == 'diajukan') {
-            echo '<button type="button" class="btn btn-warning btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editModal'.$row['id_pengaduan'].'">Detail / Edit</button>';
-            echo '<form method="post" style="display:inline; margin:0; padding:0;" onsubmit="event.stopPropagation(); return confirm(\'Yakin ingin menghapus pengaduan ini?\');">';
-            echo '<input type="hidden" name="hapus_id_pengaduan" value="' . $row['id_pengaduan'] . '">';
-            echo '<button type="submit" class="btn btn-danger btn-sm">Hapus</button>';
-            echo '</form>';
-          } else {
-            echo '-';
-          }
-          echo '</td>';
-          echo '</tr>';
-          // Modal Edit
-          if ($row['status'] == 'diajukan') {
-            ?>
-            <div class="modal fade" id="editModal<?php echo $row['id_pengaduan']; ?>" tabindex="-1" aria-labelledby="editModalLabel<?php echo $row['id_pengaduan']; ?>" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <form method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="id_pengaduan" value="<?php echo $row['id_pengaduan']; ?>">
-                    <div class="modal-header bg-primary text-white">
-                      <h5 class="modal-title" id="editModalLabel<?php echo $row['id_pengaduan']; ?>">Edit Pengaduan</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <div class="mb-3">
-                        <label class="form-label">Nama Pengadu</label>
-                        <input type="text" class="form-control" name="edit_nama_pengadu" value="<?php echo htmlspecialchars($row['nama_pengadu']); ?>" required>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label">Alamat Pengadu</label>
-                        <input type="text" class="form-control" name="edit_alamat_pengadu" value="<?php echo htmlspecialchars($row['alamat_pengadu']); ?>" required>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label">Alamat yang Diadukan</label>
-                        <input type="text" class="form-control" name="edit_alamat_diadukan" value="<?php echo htmlspecialchars($row['alamat_diadukan']); ?>" required>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label">Jenis Pengaduan</label>
-                        <select class="form-select" name="edit_alternatif" required>
-                          <option value="A1" <?php if($row['alternatif']=='A1') echo 'selected'; ?>>Longsor di Area Pemakaman</option>
-                          <option value="A2" <?php if($row['alternatif']=='A2') echo 'selected'; ?>>Saluran Drainase Tersumbat</option>
-                          <option value="A3" <?php if($row['alternatif']=='A3') echo 'selected'; ?>>Aduan Mengenai Bangunan Tak Berizin di Kawasan Padat</option>
-                          <option value="A4" <?php if($row['alternatif']=='A4') echo 'selected'; ?>>Tumpukan sampah liar di lahan kosong</option>
-                          <option value="A5" <?php if($row['alternatif']=='A5') echo 'selected'; ?>>Aduan IRK, PBG, KRK, IKTR Mengenai Administrasi Pemberkasan</option>
-                        </select>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label">Bukti Pengaduan (Upload Foto Baru jika ingin ganti)</label>
-                        <input type="file" class="form-control" name="edit_bukti_pengaduan" accept="image/*">
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                      <button type="submit" class="btn btn-primary" name="update_pengaduan">Simpan</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+    <?php include('sidebar_pengadu.php'); ?>
+    <div class="flex-grow-1 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-1"><i class="fa-solid fa-clipboard-list text-primary"></i> Status Pengaduan Saya</h1>
+                <p class="text-secondary">Kelola dan pantau status pengaduan Anda</p>
             </div>
-            <?php
-          }
-        }
-        ?>
-        </tbody>
-      </table>
+            <a href="mengajukan_pengaduan.php" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Ajukan Pengaduan Baru
+            </a>
+        </div>
+
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <div class="row">
+                <?php while ($pengaduan = mysqli_fetch_assoc($result)): ?>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="status-badge status-<?php echo $pengaduan['status']; ?>">
+                                    <?php echo ucfirst($pengaduan['status']); ?>
+                                </span>
+                                <?php if ($pengaduan['ranking_saw'] > 0): ?>
+                                    <span class="priority-badge">
+                                        Prioritas: <?php echo $pengaduan['ranking_saw']; ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title text-primary">
+                                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                    <?php echo htmlspecialchars($pengaduan['nama_alternatif']); ?>
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fa-solid fa-map-marker-alt me-1"></i>
+                                        <?php echo htmlspecialchars($pengaduan['alamat_diadukan']); ?>
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fa-solid fa-calendar me-1"></i>
+                                        <?php echo date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?>
+                                    </small>
+                                </div>
+                                
+                                <?php if ($pengaduan['nilai_saw'] > 0): ?>
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-chart-line me-1"></i>
+                                            Nilai SAW: <span class="badge bg-info"><?php echo number_format($pengaduan['nilai_saw'], 4); ?></span>
+                                        </small>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($pengaduan['bukti_pengaduan']): ?>
+                                    <div class="mb-3">
+                                        <img src="../../<?php echo $pengaduan['bukti_pengaduan']; ?>" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 150px; width: 100%; object-fit: cover;" 
+                                             alt="Bukti Pengaduan">
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-action" 
+                                            onclick="viewDetail(<?php echo $pengaduan['id_pengaduan']; ?>)">
+                                        <i class="fa-solid fa-eye"></i> Detail
+                                    </button>
+                                    <?php if ($pengaduan['status'] == 'diajukan'): ?>
+                                        <button type="button" class="btn btn-sm btn-outline-warning btn-action" 
+                                                onclick="editPengaduan(<?php echo $pengaduan['id_pengaduan']; ?>)">
+                                            <i class="fa-solid fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-action" 
+                                                onclick="hapusPengaduan(<?php echo $pengaduan['id_pengaduan']; ?>)">
+                                            <i class="fa-solid fa-trash"></i> Hapus
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+        <?php else: ?>
+            <div class="text-center py-5">
+                <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Belum ada pengaduan</h4>
+                <p class="text-muted">Anda belum mengajukan pengaduan apapun.</p>
+                <a href="mengajukan_pengaduan.php" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Ajukan Pengaduan Pertama
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
-    <?php
-    // Proses update pengaduan
-    if (isset($_POST['update_pengaduan'])) {
-      $id_pengaduan = intval($_POST['id_pengaduan']);
-      $edit_nama_pengadu = mysqli_real_escape_string($conn, $_POST['edit_nama_pengadu']);
-      $edit_alamat_pengadu = mysqli_real_escape_string($conn, $_POST['edit_alamat_pengadu']);
-      $edit_alamat_diadukan = mysqli_real_escape_string($conn, $_POST['edit_alamat_diadukan']);
-      $edit_alternatif = mysqli_real_escape_string($conn, $_POST['edit_alternatif']);
-      $update_bukti = '';
-      if (!empty($_FILES['edit_bukti_pengaduan']['name'])) {
-        $bukti = $_FILES['edit_bukti_pengaduan'];
-        $upload_dir = '../../public/image/';
-        $file_ext = strtolower(pathinfo($bukti['name'], PATHINFO_EXTENSION));
-        $file_name = 'bukti_' . time() . '_' . rand(1000,9999) . '.' . $file_ext;
-        $target_file = $upload_dir . $file_name;
-        $allowed_ext = ['jpg','jpeg','png','gif','webp'];
-        if (in_array($file_ext, $allowed_ext) && $bukti['size'] <= 2*1024*1024 && move_uploaded_file($bukti['tmp_name'], $target_file)) {
-          $update_bukti = ", bukti_pengaduan='public/image/$file_name'";
+
+    <!-- Modal Detail Pengaduan -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-info-circle me-2"></i>Detail Pengaduan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form untuk hapus pengaduan -->
+    <form method="post" id="hapusForm" style="display: none;">
+        <input type="hidden" name="id_pengaduan" id="hapus_id_pengaduan">
+        <input type="hidden" name="hapus_pengaduan" value="1">
+    </form>
+
+    <script>
+        function viewDetail(id) {
+            // Load detail pengaduan via AJAX
+            fetch(`get_detail_pengaduan_user.php?id=${id}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('detailContent').innerHTML = data;
+                    new bootstrap.Modal(document.getElementById('detailModal')).show();
+                });
         }
-      }
-      $sql_update = "UPDATE pengaduan SET nama_pengadu='$edit_nama_pengadu', alamat_pengadu='$edit_alamat_pengadu', alamat_diadukan='$edit_alamat_diadukan', alternatif='$edit_alternatif' $update_bukti WHERE id_pengaduan='$id_pengaduan' AND user_id='$user_id' AND status='diajukan'";
-      if (mysqli_query($conn, $sql_update)) {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil diupdate.",timer:1800,showConfirmButton:false}).then(()=>{window.location.href=window.location.pathname;});});</script>';
-        exit;
-      } else {
-        echo '<div class="alert alert-danger mt-3">Gagal update pengaduan.</div>';
-      }
-    }
-    // Proses hapus pengaduan
-    if (isset($_POST['hapus_id_pengaduan'])) {
-      $hapus_id = intval($_POST['hapus_id_pengaduan']);
-      // Hapus file bukti jika ada
-      $q = mysqli_query($conn, "SELECT bukti_pengaduan FROM pengaduan WHERE id_pengaduan='$hapus_id' AND user_id='$user_id' AND status='diajukan'");
-      $d = mysqli_fetch_assoc($q);
-      if ($d && !empty($d['bukti_pengaduan']) && file_exists('../../'.$d['bukti_pengaduan'])) {
-        unlink('../../'.$d['bukti_pengaduan']);
-      }
-      $del = mysqli_query($conn, "DELETE FROM pengaduan WHERE id_pengaduan='$hapus_id' AND user_id='$user_id' AND status='diajukan'");
-      if ($del) {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11}"></script>';
-        echo '<script>window.onload = function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil dihapus.",timer:1500,showConfirmButton:false}).then(()=>{window.location.href=window.location.pathname;});}</script>';
-        exit;
-      } else {
-        echo '<div class="alert alert-danger mt-3">Gagal menghapus pengaduan.</div>';
-      }
-    }
-    ?>
-  </div>
-  <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
-  <script>
-// Fix: agar form hapus tidak reload sebelum swal tampil
-const hapusForms = document.querySelectorAll('form[method="post"]');
-hapusForms.forEach(form => {
-  form.addEventListener('submit', function(e) {
-    if (form.querySelector('input[name="hapus_id_pengaduan"]')) {
-      e.preventDefault();
-      Swal.fire({
-        title: 'Yakin ingin menghapus pengaduan ini?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, hapus!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          form.submit();
+
+        function editPengaduan(id) {
+            // Redirect ke halaman edit
+            window.location.href = `edit_pengaduan.php?id=${id}`;
         }
-      });
-    }
-  });
-});
-</script>
+
+        function hapusPengaduan(id) {
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus pengaduan ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('hapus_id_pengaduan').value = id;
+                    document.getElementById('hapusForm').submit();
+                }
+            });
+        }
+    </script>
+
+    <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
 </body>
 </html>
