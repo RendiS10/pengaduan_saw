@@ -44,10 +44,10 @@ $result = mysqli_query($conn, $query);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Status Pengaduan</title>
-    <?php include_once(__DIR__.'/../template/cdn_head.php'); ?>
+  <?php include_once(__DIR__.'/../template/cdn_head.php'); ?>
     <style>
         body { background: #f8fafc; }
         .card { box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: none; }
@@ -72,8 +72,8 @@ $result = mysqli_query($conn, $query);
     </style>
 </head>
 <body class="d-flex">
-    <?php include('sidebar_pengadu.php'); ?>
-    <div class="flex-grow-1 p-4">
+  <?php include('sidebar_pengadu.php'); ?>
+  <div class="flex-grow-1 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h1 class="mb-1"><i class="fa-solid fa-clipboard-list text-primary"></i> Status Pengaduan Saya</h1>
@@ -98,38 +98,38 @@ $result = mysqli_query($conn, $query);
                                         Prioritas: <?php echo $pengaduan['ranking_saw']; ?>
                                     </span>
                                 <?php endif; ?>
-                            </div>
+                    </div>
                             <div class="card-body">
                                 <h6 class="card-title text-primary">
                                     <i class="fa-solid fa-exclamation-triangle me-2"></i>
                                     <?php echo htmlspecialchars($pengaduan['nama_alternatif']); ?>
                                 </h6>
                                 
-                                <div class="mb-3">
+                      <div class="mb-3">
                                     <small class="text-muted">
                                         <i class="fa-solid fa-map-marker-alt me-1"></i>
                                         <?php echo htmlspecialchars($pengaduan['alamat_diadukan']); ?>
                                     </small>
-                                </div>
+                      </div>
                                 
-                                <div class="mb-3">
+                      <div class="mb-3">
                                     <small class="text-muted">
                                         <i class="fa-solid fa-calendar me-1"></i>
                                         <?php echo date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?>
                                     </small>
-                                </div>
+                      </div>
                                 
                                 <?php if ($pengaduan['nilai_saw'] > 0): ?>
-                                    <div class="mb-3">
+                      <div class="mb-3">
                                         <small class="text-muted">
                                             <i class="fa-solid fa-chart-line me-1"></i>
                                             Nilai SAW: <span class="badge bg-info"><?php echo number_format($pengaduan['nilai_saw'], 4); ?></span>
                                         </small>
-                                    </div>
+                      </div>
                                 <?php endif; ?>
                                 
                                 <?php if ($pengaduan['bukti_pengaduan']): ?>
-                                    <div class="mb-3">
+                      <div class="mb-3">
                                         <img src="../../<?php echo $pengaduan['bukti_pengaduan']; ?>" 
                                              class="img-fluid rounded" 
                                              style="max-height: 150px; width: 100%; object-fit: cover;" 
@@ -154,8 +154,8 @@ $result = mysqli_query($conn, $query);
                                         </button>
                                     <?php endif; ?>
                                 </div>
-                            </div>
-                        </div>
+                      </div>
+                      </div>
                     </div>
                 <?php endwhile; ?>
             </div>
@@ -169,7 +169,7 @@ $result = mysqli_query($conn, $query);
                 </a>
             </div>
         <?php endif; ?>
-    </div>
+                    </div>
 
     <!-- Modal Detail Pengaduan -->
     <div class="modal fade" id="detailModal" tabindex="-1">
@@ -181,7 +181,7 @@ $result = mysqli_query($conn, $query);
                 </div>
                 <div class="modal-body" id="detailContent">
                     <!-- Content will be loaded here -->
-                </div>
+              </div>
             </div>
         </div>
     </div>
@@ -209,23 +209,23 @@ $result = mysqli_query($conn, $query);
         }
 
         function hapusPengaduan(id) {
-            Swal.fire({
+      Swal.fire({
                 title: 'Konfirmasi Hapus',
                 text: 'Apakah Anda yakin ingin menghapus pengaduan ini?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
+      }).then((result) => {
+        if (result.isConfirmed) {
                     document.getElementById('hapus_id_pengaduan').value = id;
                     document.getElementById('hapusForm').submit();
-                }
-            });
         }
-    </script>
+      });
+    }
+</script>
 
     <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
 </body>

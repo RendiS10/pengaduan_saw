@@ -105,6 +105,14 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                             <li>• <span class="ranking-badge">2-3</span> = Prioritas Menengah</li>
                             <li>• <span class="ranking-badge">4-5</span> = Prioritas Rendah</li>
                         </ul>
+                        <h6 class="mt-3"><i class="fa-solid fa-clock text-warning"></i> Lama Laporan:</h6>
+                        <ul class="list-unstyled">
+                            <li>• < 1 hari = Nilai 1</li>
+                            <li>• 1-2 hari = Nilai 2</li>
+                            <li>• 3-4 hari = Nilai 3</li>
+                            <li>• 5-6 hari = Nilai 4</li>
+                            <li>• ≥ 7 hari = Nilai 5</li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -83,7 +83,7 @@ if (!$detail) {
                     </tr>
                     <tr>
                         <td>Lama Laporan (C5)</td>
-                        <td><?php echo $detail['c5_value']; ?> hari</td>
+                        <td><?php echo $detail['lama_laporan']; ?> hari</td>
                         <td>10%</td>
                         <td><span class="badge bg-success">Benefit</span></td>
                     </tr>

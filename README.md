@@ -19,11 +19,19 @@ Menggunakan 5 kriteria dengan bobot:
 - **Lama Laporan (C5)**: 10% - Benefit
 
 ### 3. Jenis Pengaduan (Alternatif)
-1. **A1**: Longsor di Area Pemakaman (Nilai SAW: 0.88)
-2. **A2**: Saluran Drainase Tersumbat (Nilai SAW: 0.717)
-3. **A3**: Aduan Mengenai Bangunan Tak Berizin di Kawasan Padat (Nilai SAW: 0.6475)
-4. **A4**: Tumpukan sampah liar di lahan kosong (Nilai SAW: 0.44)
-5. **A5**: Aduan IRK, PBG, KRK, IKTR Mengenai Administrasi Pemberkasan (Nilai SAW: 0.5525)
+1. **A1**: Longsor di Area Pemakaman
+2. **A2**: Saluran Drainase Tersumbat
+3. **A3**: Aduan Mengenai Bangunan Tak Berizin di Kawasan Padat
+4. **A4**: Tumpukan sampah liar di lahan kosong
+5. **A5**: Aduan IRK, PBG, KRK, IKTR Mengenai Administrasi Pemberkasan
+
+### 4. Lama Laporan (C5) - Dinamis
+Sistem menghitung lama laporan secara otomatis berdasarkan tanggal pengajuan:
+- **< 1 hari**: Nilai 1
+- **1-2 hari**: Nilai 2
+- **3-4 hari**: Nilai 3
+- **5-6 hari**: Nilai 4
+- **≥ 7 hari**: Nilai 5
 
 ## Instalasi
 
@@ -101,7 +109,8 @@ $db   = 'sipetruk_saw';
 - Pilih jenis pengaduan (A1-A5)
 - Isi form pengaduan
 - Upload bukti foto
-- Sistem otomatis menghitung SAW
+- Sistem otomatis menghitung lama laporan (1 hari untuk pengaduan baru)
+- Sistem menghitung SAW dengan lama laporan dinamis
 - Pengaduan tersimpan dengan ranking
 
 ### 3. Proses Pengaduan (Bidang)
@@ -117,16 +126,29 @@ $db   = 'sipetruk_saw';
 
 ## Perhitungan SAW
 
-### 1. Normalisasi
+### 1. Lama Laporan Dinamis (C5)
+Sistem menghitung lama laporan secara otomatis:
+```
+Lama Laporan = Tanggal Sekarang - Tanggal Pengajuan
+```
+
+Mapping nilai C5:
+- < 1 hari → Nilai 1
+- 1-2 hari → Nilai 2  
+- 3-4 hari → Nilai 3
+- 5-6 hari → Nilai 4
+- ≥ 7 hari → Nilai 5
+
+### 2. Normalisasi
 - **Benefit**: `rij = xij / max(xij)`
 - **Cost**: `rij = min(xij) / xij`
 
-### 2. Nilai Preferensi
+### 3. Nilai Preferensi
 ```
 Vi = Σ(wj * rij)
 ```
 
-### 3. Ranking
+### 4. Ranking
 Pengaduan diurutkan berdasarkan nilai Vi tertinggi.
 
 ## File Penting

@@ -72,8 +72,8 @@ if (isset($_POST['ajukan'])) {
     if ($upload_ok && move_uploaded_file($bukti['tmp_name'], $target_file)) {
         $bukti_path = 'public/image/' . $file_name;
         
-        // Hitung lama laporan (dalam hari)
-        $lama_laporan = $nilai_alt['c5_value'];
+        // Hitung lama laporan (dalam hari) - selalu 1 hari untuk pengaduan baru
+        $lama_laporan = 1;
         
         $sql = "INSERT INTO pengaduan (
             user_id, nama_pengadu, alamat_pengadu, alamat_diadukan, alternatif, bukti_pengaduan,
@@ -126,7 +126,7 @@ if (isset($_POST['ajukan'])) {
           <input type="text" class="form-control" name="alamat_pengadu" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Alamat yang Diadukan:</label>
+          <label class="form-label">Alamat yang Diadukan: <b>(Direkomendasikan Titik Koordinat Google Maps)</b></label>
           <input type="text" class="form-control" name="alamat_diadukan" required>
         </div>
         <div class="mb-3">
