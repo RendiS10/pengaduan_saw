@@ -37,6 +37,7 @@ temp/
 # Uploaded files (bukti pengaduan)
 public/image/bukti_*
 public/uploads/
+uploads/
 
 # Database backups
 *.sql
@@ -81,4 +82,4 @@ test.php
 *_test.php
 
 # Documentation build
-/docs/build/ 
+/docs/build/

@@ -34,7 +34,7 @@ $profil = mysqli_fetch_assoc($result);
 <body class="d-flex">
   <?php include('sidebar_pengadu.php'); ?>
   <div class="flex-grow-1 p-4">
-    <h1 class="mb-2"><i class="fa-solid fa-user-circle profile-icon"></i> Hai, <?php echo htmlspecialchars($profil['nama']); ?>!</h1>
+    <h3 class="mb-2">Hai, <?php echo htmlspecialchars($profil['nama']); ?>!</h3>
     <p class="text-secondary mb-4">Selamat datang di dashboard pengadu. Kelola profil dan pengaduan Anda dengan mudah.</p>
     <div class="card mt-2" style="max-width: 420px;">
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">

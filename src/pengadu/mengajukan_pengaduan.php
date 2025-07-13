@@ -110,27 +110,39 @@ if (isset($_POST['ajukan'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ajukan Pengaduan</title>
   <?php include_once(__DIR__ . '/../template/cdn_head.php'); ?>
+  <style>
+    body { background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%); }
+    .card { box-shadow: 0 2px 16px rgba(0,0,0,0.09); border-radius: 1.2rem; border: none; }
+    .card-title { font-weight: bold; color: #0d6efd; }
+    .form-label { font-weight: 500; }
+    .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15); }
+    .btn-primary { background: linear-gradient(90deg, #0d6efd 60%, #48dbfb 100%); border: none; }
+    .btn-primary:hover { background: linear-gradient(90deg, #48dbfb 60%, #0d6efd 100%); }
+    .upload-preview { display: none; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .animated-title { animation: fadeInDown 1s; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: none; } }
+  </style>
 </head>
 <body class="d-flex">
   <?php include('sidebar_pengadu.php'); ?>
   <div class="flex-grow-1 p-4">
-    <h2>Ajukan Pengaduan</h2>
-    <div class="card p-4" style="max-width: 700px; margin: 0 auto;">
+    <h3 class="animated-title text-center mb-4"><i class="fa-solid fa-paper-plane text-primary me-2"></i> Ajukan Pengaduan</h3>
+    <div class="card p-4" style="max-width: 700px; margin: 0 auto; margin-top: 30px;">
       <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
-          <label class="form-label">Nama Pengadu:</label>
+          <label class="form-label"><i class="fa-solid fa-user me-1"></i> Nama Pengadu:</label>
           <input type="text" class="form-control" name="nama_pengadu" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Alamat Pengadu:</label>
+          <label class="form-label"><i class="fa-solid fa-location-dot me-1"></i> Alamat Pengadu:</label>
           <input type="text" class="form-control" name="alamat_pengadu" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Alamat yang Diadukan: <b>(Direkomendasikan Titik Koordinat Google Maps)</b></label>
+          <label class="form-label"><i class="fa-solid fa-map-marker-alt me-1"></i> Alamat yang Diadukan: <b>(Direkomendasikan Titik Koordinat Google Maps)</b></label>
           <input type="text" class="form-control" name="alamat_diadukan" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Pilih Jenis Pengaduan</label>
+          <label class="form-label"><i class="fa-solid fa-list me-1"></i> Pilih Jenis Pengaduan</label>
           <select class="form-select" name="alternatif" required>
             <option value="A1">Longsor di Area Pemakaman</option>
             <option value="A2">Saluran Drainase Tersumbat</option>
@@ -140,14 +152,30 @@ if (isset($_POST['ajukan'])) {
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Bukti Pengaduan (Upload Foto):</label>
+          <label class="form-label"><i class="fa-solid fa-image me-1"></i> Bukti Pengaduan (Upload Foto):</label>
           <input type="file" class="form-control" name="bukti_pengaduan" accept="image/*" required>
         </div>
-        <!-- ...form pengaduan lain di sini, bisa tambahkan field lain sesuai kebutuhan... -->
         <button type="submit" class="btn btn-primary w-100" name="ajukan"><i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan</button>
       </form>
     </div>
   </div>
+  <script>
+    function previewFile(input) {
+      const preview = document.getElementById('previewImg');
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    }
+  </script>
   <?php include_once(__DIR__ . '/../template/cdn_footer.php'); ?>
 </body>
 </html>
