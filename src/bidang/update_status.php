@@ -212,7 +212,7 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                             <select class="form-select" name="status" required>
                                 <option value="diajukan">Diajukan</option>
                                 <option value="diproses">Diproses</option>
-                                <option value="selesai">Selesai</option>
+                                <option value="ditolak">Ditolak</option>
                             </select>
                         </div>
                     </div>

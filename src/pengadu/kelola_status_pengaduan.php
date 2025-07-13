@@ -39,10 +39,9 @@ $result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kelola Status Pengaduan</title>
   <?php include_once(__DIR__.'/../template/cdn_head.php'); ?>
   <style>
@@ -56,13 +55,15 @@ $result = mysqli_query($conn, $query);
       }
       .status-diajukan { background: #ffeaa7; color: #d63031; }
       .status-diproses { background: #74b9ff; color: #0984e3; }
-      .status-selesai { background: #55a3ff; color: #00b894; }
+      .status-selesai  { background: #55a3ff; color: #00b894; }
+      .status-ditolak  { background: #fab1a0; color: #c0392b; }
       .btn-action { transition: all 0.3s; }
       .btn-action:hover { transform: scale(1.05); }
   </style>
 </head>
 <body class="d-flex">
 <?php include('sidebar_pengadu.php'); ?>
+
 <div class="flex-grow-1 p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -96,17 +97,21 @@ $result = mysqli_query($conn, $query);
                         <tbody>
                         <?php $no=1; while ($pengaduan = mysqli_fetch_assoc($result)): ?>
                             <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><strong><?php echo htmlspecialchars($pengaduan['nama_alternatif']); ?></strong></td>
-                                <td><small class="text-muted"><i class="fa-solid fa-map-marker-alt me-1"></i> <?php echo htmlspecialchars($pengaduan['alamat_diadukan']); ?></small></td>
-                                <td><small class="text-muted"><i class="fa-solid fa-calendar me-1"></i> <?php echo date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?></small></td>
-                                <td><span class="status-badge status-<?php echo $pengaduan['status']; ?>"> <?php echo ucfirst($pengaduan['status']); ?> </span></td>
-                                <td><?php if ($pengaduan['bukti_pengaduan']): ?><img src="../../<?php echo $pengaduan['bukti_pengaduan']; ?>" class="img-fluid rounded" style="max-height: 60px; width: 80px; object-fit: cover;" alt="Bukti Pengaduan"><?php endif; ?></td>
+                                <td><?= $no++; ?></td>
+                                <td><strong><?= htmlspecialchars($pengaduan['nama_alternatif']); ?></strong></td>
+                                <td><small class="text-muted"><i class="fa-solid fa-map-marker-alt me-1"></i> <?= htmlspecialchars($pengaduan['alamat_diadukan']); ?></small></td>
+                                <td><small class="text-muted"><i class="fa-solid fa-calendar me-1"></i> <?= date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?></small></td>
+                                <td><span class="status-badge status-<?= $pengaduan['status']; ?>"> <?= ucfirst($pengaduan['status']); ?> </span></td>
+                                <td><?php if ($pengaduan['bukti_pengaduan']): ?><img src="../../<?= $pengaduan['bukti_pengaduan']; ?>" class="img-fluid rounded" style="max-height: 60px; width: 80px; object-fit: cover;" alt="Bukti Pengaduan"><?php endif; ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="viewDetail(<?php echo $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-eye"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-warning btn-action" onclick="editPengaduan(<?php echo $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="hapusPengaduan(<?php echo $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-action" onclick="viewDetail(<?= $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-eye"></i></button>
+                                        <?php if ($pengaduan['status'] === 'ditolak'): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="hapusPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-trash"></i></button>
+                                        <?php elseif ($pengaduan['status'] !== 'diproses'): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-warning btn-action" onclick="editPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-edit"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-action" onclick="hapusPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"><i class="fa-solid fa-trash"></i></button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
@@ -128,7 +133,7 @@ $result = mysqli_query($conn, $query);
     <?php endif; ?>
 </div>
 
-<!-- Modal Detail Pengaduan -->
+<!-- Modal Detail -->
 <div class="modal fade" id="detailModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -136,23 +141,19 @@ $result = mysqli_query($conn, $query);
                 <h5 class="modal-title"><i class="fa-solid fa-info-circle me-2"></i>Detail Pengaduan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="detailContent">
-                <!-- Konten AJAX di sini -->
-            </div>
+            <div class="modal-body" id="detailContent"></div>
         </div>
     </div>
 </div>
 
-<!-- Modal Edit Pengaduan -->
+<!-- Modal Edit -->
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="editContent">
-            <!-- Konten AJAX edit di sini -->
-        </div>
+        <div class="modal-content" id="editContent"></div>
     </div>
 </div>
 
-<!-- Form hapus -->
+<!-- Form Hapus -->
 <form method="post" id="hapusForm" style="display: none;">
     <input type="hidden" name="id_pengaduan" id="hapus_id_pengaduan">
     <input type="hidden" name="hapus_pengaduan" value="1">
@@ -161,35 +162,21 @@ $result = mysqli_query($conn, $query);
 <script>
 function viewDetail(id) {
     fetch(`get_detail_pengaduan_user.php?id=${id}`)
-        .then(response => response.text())
-        .then(data => {
-            const detailModalEl = document.getElementById('detailModal');
-            const modalInstance = bootstrap.Modal.getInstance(detailModalEl) || new bootstrap.Modal(detailModalEl);
-
-            document.getElementById('detailContent').innerHTML = data;
-            modalInstance.show();
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('detailContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
         });
 }
-
-document.getElementById('detailModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('detailContent').innerHTML = '';
-});
 
 function editPengaduan(id) {
     fetch(`edit_pengaduan_modal.php?id=${id}`)
-        .then(response => response.text())
-        .then(data => {
-            const editModalEl = document.getElementById('editModal');
-            const modalInstance = bootstrap.Modal.getInstance(editModalEl) || new bootstrap.Modal(editModalEl);
-
-            document.getElementById('editContent').innerHTML = data;
-            modalInstance.show();
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('editContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('editModal')).show();
         });
 }
-
-document.getElementById('editModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('editContent').innerHTML = '';
-});
 
 function hapusPengaduan(id) {
     Swal.fire({
@@ -208,6 +195,13 @@ function hapusPengaduan(id) {
         }
     });
 }
+
+document.getElementById('detailModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('detailContent').innerHTML = '';
+});
+document.getElementById('editModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('editContent').innerHTML = '';
+});
 </script>
 
 <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
