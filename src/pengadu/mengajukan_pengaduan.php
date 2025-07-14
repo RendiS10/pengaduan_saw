@@ -28,7 +28,6 @@ if (isset($_POST['ajukan'])) {
         2 => 'Tidak Mendesak',
         1 => 'Biasa'
     ];
-    
     $potensi_dampak_map = [
         5 => 'Berdampak luas (masyarakat umum)',
         4 => 'Beberapa RT',
@@ -36,7 +35,6 @@ if (isset($_POST['ajukan'])) {
         2 => 'Jalan pribadi',
         1 => 'Individual saja'
     ];
-    
     $jenis_pengaduan_map = [
         5 => 'Infrastruktur rusak berat',
         4 => 'Infrastruktur rusak ringan',
@@ -44,7 +42,6 @@ if (isset($_POST['ajukan'])) {
         2 => 'Non-prioritas',
         1 => 'Tidak relevan'
     ];
-    
     $tingkat_kompleksitas_map = [
         5 => 'Kompleks dan melibatkan banyak pihak (lintas bidang)',
         4 => 'Kompleks dan butuh verifikasi tambahan',
@@ -93,7 +90,7 @@ if (isset($_POST['ajukan'])) {
             $saw->calculateAllPengaduan();
             
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil diajukan dan telah diproses dengan sistem SAW.",timer:2000,showConfirmButton:false}).then(()=>{window.location.href="dashboard_pengadu.php";});});</script>';
+            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil diajukan dan telah diproses dengan sistem SAW.",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"}).then(()=>{window.location.href="dashboard_pengadu.php";});});</script>';
             exit;
         } else {
             echo '<div class="alert alert-danger mt-3">Gagal menyimpan pengaduan ke database.</div>';
@@ -111,14 +108,13 @@ if (isset($_POST['ajukan'])) {
   <title>Ajukan Pengaduan</title>
   <?php include_once(__DIR__ . '/../template/cdn_head.php'); ?>
   <style>
-    body { background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%); }
+    body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
     .card { box-shadow: 0 2px 16px rgba(0,0,0,0.09); border-radius: 1.2rem; border: none; }
-    .card-title { font-weight: bold; color: #0d6efd; }
+    .card-title { font-weight: bold; color: #667eea; }
     .form-label { font-weight: 500; }
-    .form-control:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15); }
-    .btn-primary { background: linear-gradient(90deg, #0d6efd 60%, #48dbfb 100%); border: none; }
-    .btn-primary:hover { background: linear-gradient(90deg, #48dbfb 60%, #0d6efd 100%); }
-    .upload-preview { display: none; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102,126,234,.15); }
+    .btn-primary { background: linear-gradient(90deg, #667eea 60%, #764ba2 100%); border: none; }
+    .btn-primary:hover { background: linear-gradient(90deg, #764ba2 60%, #667eea 100%); }
     .animated-title { animation: fadeInDown 1s; }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: none; } }
   </style>
@@ -159,23 +155,6 @@ if (isset($_POST['ajukan'])) {
       </form>
     </div>
   </div>
-  <script>
-    function previewFile(input) {
-      const preview = document.getElementById('previewImg');
-      const file = input.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-      } else {
-        preview.src = '';
-        preview.style.display = 'none';
-      }
-    }
-  </script>
   <?php include_once(__DIR__ . '/../template/cdn_footer.php'); ?>
 </body>
 </html>
