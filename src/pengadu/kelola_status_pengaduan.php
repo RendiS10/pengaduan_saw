@@ -194,17 +194,13 @@ $result = mysqli_query($conn, $query);
 
     <?php if (mysqli_num_rows($result) > 0): ?>
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fa-solid fa-table me-2"></i>Daftar Pengaduan Saya</h5>
-            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                             <thead>
                             <tr>
-                                <th><i class="fa-solid fa-hashtag me-1"></i>#</th>
+                                <th></i>No</th>
                                 <th><i class="fa-solid fa-file-alt me-1"></i>Jenis Pengaduan</th>
-                                <th><i class="fa-solid fa-map-marker-alt me-1"></i>Lokasi</th>
                                 <th><i class="fa-solid fa-calendar me-1"></i>Tanggal</th>
                                 <th><i class="fa-solid fa-tasks me-1"></i>Status</th>
                                 <th><i class="fa-solid fa-image me-1"></i>Bukti</th>
@@ -214,9 +210,8 @@ $result = mysqli_query($conn, $query);
                         <tbody>
                         <?php $no=1; while ($pengaduan = mysqli_fetch_assoc($result)): ?>
                             <tr>
-                                <td><?= $no++; ?></td>
+                                <td align="center"><?= $no++; ?></td>
                                 <td><strong><?= htmlspecialchars($pengaduan['nama_alternatif']); ?></strong></td>
-                                <td><small class="text-muted"><i class="fa-solid fa-map-marker-alt me-1"></i> <?= htmlspecialchars($pengaduan['alamat_diadukan']); ?></small></td>
                                 <td><small class="text-muted"><i class="fa-solid fa-calendar me-1"></i> <?= date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?></small></td>
                                     <td>
                                         <span class="status-badge status-<?= $pengaduan['status']; ?>">

@@ -76,8 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+            display: flex;
+            margin-bottom: 10px;
+            flex-direction: column;
+            align-items: center;
         }
         
         .login-header h2 {
@@ -252,8 +254,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <div class="login-container">
         <div class="login-header">
-            <h2><i class="fa-solid fa-shield-halved me-2"></i>SIPETRUK</h2>
-            <p class="subtitle">Sistem Pengaduan Terpadu</p>
+        <img src = ./public/image/logo.png width = "250px" height = "60px">
+        <br>
+            <p class="subtitle">Sistem Pengaduan SIPETRUK</p>
         </div>
         
         <form method="post" action="" id="loginForm">

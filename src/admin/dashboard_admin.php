@@ -8,16 +8,14 @@ include_once '../../config/koneksi.php';
 
 // Ambil statistik
 $query_total_users = "SELECT COUNT(*) as total FROM users";
-$query_total_pengaduan = "SELECT COUNT(*) as total FROM pengaduan";
-$query_pengaduan_diajukan = "SELECT COUNT(*) as total FROM pengaduan WHERE status = 'diajukan'";
-$query_pengaduan_diproses = "SELECT COUNT(*) as total FROM pengaduan WHERE status = 'diproses'";
-$query_pengaduan_selesai = "SELECT COUNT(*) as total FROM pengaduan WHERE status = 'selesai'";
+$query_total_admin = "SELECT COUNT(*) as total FROM users WHERE role = 'admin'";
+$query_total_pengadu = "SELECT COUNT(*) as total FROM users WHERE role = 'pengadu'";
+$query_total_bidang = "SELECT COUNT(*) as total FROM users WHERE role = 'bidang'";
 
 $total_users = mysqli_fetch_assoc(mysqli_query($conn, $query_total_users))['total'];
-$total_pengaduan = mysqli_fetch_assoc(mysqli_query($conn, $query_total_pengaduan))['total'];
-$pengaduan_diajukan = mysqli_fetch_assoc(mysqli_query($conn, $query_pengaduan_diajukan))['total'];
-$pengaduan_diproses = mysqli_fetch_assoc(mysqli_query($conn, $query_pengaduan_diproses))['total'];
-$pengaduan_selesai = mysqli_fetch_assoc(mysqli_query($conn, $query_pengaduan_selesai))['total'];
+$total_admin = mysqli_fetch_assoc(mysqli_query($conn, $query_total_admin))['total'];
+$total_pengadu = mysqli_fetch_assoc(mysqli_query($conn, $query_total_pengadu))['total'];
+$total_bidang = mysqli_fetch_assoc(mysqli_query($conn, $query_total_bidang))['total'];
 
 // Ambil profil admin
 $user_id = $_SESSION['user_id'];
@@ -224,11 +222,11 @@ $profil = mysqli_fetch_assoc($result);
                 <div class="stat-card info">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h3 class="mb-0"><?php echo $total_pengaduan; ?></h3>
-                                <p class="mb-0"><i class="fa-solid fa-clipboard-list me-1"></i>Total Pengaduan</p>
+                            <h3 class="mb-0"><?php echo $total_admin; ?></h3>
+                                <p class="mb-0"><i class="fa-solid fa-user-shield me-1"></i>Total Role Admin</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fa-solid fa-clipboard-list fa-2x"></i>
+                            <i class="fa-solid fa-user-shield fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -237,11 +235,11 @@ $profil = mysqli_fetch_assoc($result);
                 <div class="stat-card warning">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h3 class="mb-0"><?php echo $pengaduan_diajukan; ?></h3>
-                                <p class="mb-0"><i class="fa-solid fa-clock me-1"></i>Menunggu Proses</p>
+                            <h3 class="mb-0"><?php echo $total_pengadu; ?></h3>
+                                <p class="mb-0"><i class="fa-solid fa-user me-1"></i>Total Role Pengadu</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fa-solid fa-clock fa-2x"></i>
+                            <i class="fa-solid fa-user fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -250,11 +248,11 @@ $profil = mysqli_fetch_assoc($result);
                 <div class="stat-card success">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h3 class="mb-0"><?php echo $pengaduan_selesai; ?></h3>
-                                <p class="mb-0"><i class="fa-solid fa-check-circle me-1"></i>Selesai</p>
+                            <h3 class="mb-0"><?php echo $total_bidang; ?></h3>
+                                <p class="mb-0"><i class="fa-solid fa-briefcase me-1"></i>Total Role Bidang</p>
                         </div>
                         <div class="align-self-center">
-                            <i class="fa-solid fa-check-circle fa-2x"></i>
+                            <i class="fa-solid fa-briefcase fa-2x"></i>
                         </div>
                     </div>
                 </div>
@@ -297,34 +295,34 @@ $profil = mysqli_fetch_assoc($result);
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-success text-white">
-                        <span><i class="fa-solid fa-chart-pie me-2"></i>Status Pengaduan</span>
+                        <span><i class="fa-solid fa-chart-pie me-2"></i>Spesifikasi Role User</span>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                                    <span><i class="fa-solid fa-clock me-1"></i>Diajukan</span>
-                                <span><?php echo $pengaduan_diajukan; ?></span>
+                                    <span><i class="fa-solid fa-user-shield me-1"></i>Admin</span>
+                                <span><?php echo $total_admin; ?></span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar bg-warning" style="width: <?php echo $total_pengaduan > 0 ? ($pengaduan_diajukan/$total_pengaduan)*100 : 0; ?>%"></div>
+                                <div class="progress-bar bg-primary" style="width: <?php echo $total_users > 0 ? ($total_admin/$total_users)*100 : 0; ?>%"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                                    <span><i class="fa-solid fa-spinner me-1"></i>Diproses</span>
-                                <span><?php echo $pengaduan_diproses; ?></span>
+                                    <span><i class="fa-solid fa-user me-1"></i>Pengadu</span>
+                                <span><?php echo $total_pengadu; ?></span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar bg-info" style="width: <?php echo $total_pengaduan > 0 ? ($pengaduan_diproses/$total_pengaduan)*100 : 0; ?>%"></div>
+                                <div class="progress-bar bg-warning" style="width: <?php echo $total_users > 0 ? ($total_pengadu/$total_users)*100 : 0; ?>%"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                                    <span><i class="fa-solid fa-check-circle me-1"></i>Selesai</span>
-                                <span><?php echo $pengaduan_selesai; ?></span>
+                                    <span><i class="fa-solid fa-briefcase me-1"></i>Bidang</span>
+                                <span><?php echo $total_bidang; ?></span>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar bg-success" style="width: <?php echo $total_pengaduan > 0 ? ($pengaduan_selesai/$total_pengaduan)*100 : 0; ?>%"></div>
+                                <div class="progress-bar bg-success" style="width: <?php echo $total_users > 0 ? ($total_bidang/$total_users)*100 : 0; ?>%"></div>
                             </div>
                             </div>
                         </div>

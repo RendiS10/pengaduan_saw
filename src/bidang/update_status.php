@@ -100,7 +100,6 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
         .status-diproses { background: #74b9ff; color: #0984e3; }
         .status-selesai { background: #55a3ff; color: #00b894; }
         .table-responsive { 
-            border-radius: 15px; 
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
