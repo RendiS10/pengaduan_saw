@@ -44,9 +44,14 @@ while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            body { margin: 0; padding: 20px; background: white !important; }
+            body { margin: 0; padding: 20px; background: white !important; font-family: 'Times New Roman', serif !important; }
             .card { border: 1px solid #000; box-shadow: none; background: white !important; }
             .main-container { background: white !important; box-shadow: none !important; }
+            .signature-section { page-break-inside: avoid; }
+            .table-print th { background: #f0f0f0 !important; color: #000 !important; }
+            .table-print td { background: white !important; }
+            .ranking-badge { background: #f0f0f0 !important; color: #000 !important; }
+            .status-badge { background: #f0f0f0 !important; color: #000 !important; }
         }
         .print-only { display: none; }
         body { 
@@ -236,110 +241,136 @@ while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
                 <div class="card">
                     <div class="card-body">
                         <!-- Header Surat Formal -->
-                        <div style="text-align:center; margin-bottom:20px;">
-                            <div style="display:flex; align-items:center; justify-content:center;">
-                                <div style="width:80px; height:80px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px; font-weight:bold; font-size:1.2rem; margin-right:16px;">
-                                    LOGO INSTANSI
+                        <div style="text-align:center; margin-bottom:30px;">
+                            <div style="display:flex; align-items:center; justify-content:center; margin-bottom:15px;">
+                                <div style="width:215px; height:50px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px; font-weight:bold; font-size:1.2rem; margin-right:16px;">
+                                    <img src="../../public/image/logo.png" alt="" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
                                 </div>
                                 <div style="text-align:left;">
-                                    <span style="font-size:1.3rem; font-weight:bold;">PEMERINTAH KOTA CONTOH</span><br>
-                                    <span style="font-size:1.1rem; font-weight:600;">DINAS PELAYANAN MASYARAKAT</span><br>
-                                    <span style="font-size:0.95rem;">Jl. Contoh Raya No. 123, Jakarta 12345 | Telp: (021) 12345678</span>
+                                    <span style="font-size:1.4rem; font-weight:bold; color:#2c3e50;">PEMERINTAH KOTA CONTOH</span><br>
+                                    <span style="font-size:1.2rem; font-weight:600; color:#34495e;">DINAS PELAYANAN MASYARAKAT</span><br>
+                                    <span style="font-size:1rem; color:#7f8c8d;">Jl. Contoh Raya No. 123, Jakarta 12345</span><br>
+                                    <span style="font-size:1rem; color:#7f8c8d;">Telp: (021) 12345678 | Email: info@contoh.go.id</span>
                                 </div>
+
                             </div>
-                            <hr style="border:2px solid #667eea; margin-top:18px; margin-bottom:18px;">
+                            <hr style="border:3px solid #667eea; margin:15px 0; width:100%;">
+                            <div style="margin-top:10px;">
+                                <span style="font-size:0.9rem; color:#7f8c8d; font-style:italic;">Nomor: <?php echo str_pad($detail['id_pengaduan'], 4, '0', STR_PAD_LEFT); ?>/SIPETRUK/<?php echo date('Y'); ?></span><br>
+                                <span style="font-size:0.9rem; color:#7f8c8d; font-style:italic;">Tanggal: <?php echo date('d F Y'); ?></span>
+                            </div>
                         </div>
-                        <!-- Info Surat -->
-                        <table style="width:100%; margin-bottom:20px;">
-                            <tr>
-                                <td style="width:18%;">Nomor</td>
-                                <td style="width:2%;">:</td>
-                                <td><?php echo str_pad($detail['id_pengaduan'], 4, '0', STR_PAD_LEFT); ?>/SIPETRUK/<?php echo date('Y'); ?></td>
-                            </tr>
-                            <tr>
-                                <td>Perihal</td>
-                                <td>:</td>
-                                <td>Pengaduan Masyarakat</td>
-                            </tr>
-                            <tr>
-                                <td>Lampiran</td>
-                                <td>:</td>
-                                <td>1 (satu) berkas</td>
-                            </tr>
-                        </table>
-                        <div style="margin-bottom:18px;">
-                            Kepada Yth.<br>
-                            <b>Petugas Bidang</b><br>
-                            di Tempat
+
+                        <!-- Lampiran dan Perihal -->
+                        <div style="margin-bottom:25px;">
+                            <table style="width:100%; margin-bottom:15px;">
+                                <tr>
+                                    <td style="width:15%; vertical-align:top; font-weight:600;">Lampiran</td>
+                                    <td style="width:5%; vertical-align:top;">:</td>
+                                    <td style="width:80%;">1 (satu) berkas</td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align:top; font-weight:600;">Perihal</td>
+                                    <td style="vertical-align:top;">:</td>
+                                    <td><strong>Penanganan Pengaduan Masyarakat</strong></td>
+                                </tr>
+                            </table>
                         </div>
-                        <div style="margin-bottom:18px;">
-                            Dengan hormat,<br>
-                            <p style="text-align:justify; margin-top:8px;">
-                                Bersama surat ini, kami sampaikan adanya pengaduan masyarakat yang telah masuk ke dalam sistem SIPETRUK dengan rincian sebagai berikut:
+
+                        <!-- Tujuan Surat -->
+                        <div style="margin-bottom:25px;">
+                            <p style="margin-bottom:10px;">
+                                Kepada Yth.<br>
+                                <strong>Petugas Bidang Penanganan Pengaduan</strong><br>
+                                Dinas Pelayanan Masyarakat<br>
+                                Kota Contoh
                             </p>
                         </div>
+
+                        <!-- Pembuka Surat -->
+                        <div style="margin-bottom:25px;">
+                            <p style="text-align:justify; line-height:1.6; margin-bottom:15px;">
+                                Dengan hormat,
+                            </p>
+                            <p style="text-align:justify; line-height:1.6; margin-bottom:15px;">
+                                Bersama surat ini, kami sampaikan adanya pengaduan masyarakat yang telah masuk ke dalam sistem SIPETRUK (Sistem Pengaduan Terpadu) dengan rincian sebagai berikut:
+                            </p>
+                        </div>
+
                         <!-- Informasi Pengaduan -->
-                        <table class="table-print" style="margin-bottom:18px;">
-                            <tr>
-                                <th width="30%"><i class="fa-solid fa-user me-1"></i>Nama Pengadu</th>
-                                <td><?php echo htmlspecialchars($detail['nama_pengadu']); ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-location-dot me-1"></i>Alamat Pengadu</th>
-                                <td><?php echo htmlspecialchars($detail['alamat_pengadu']); ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-calendar me-1"></i>Tanggal Pengaduan</th>
-                                <td><?php echo date('d/m/Y H:i', strtotime($detail['tanggal_pengaduan'])); ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-map-marker-alt me-1"></i>Lokasi yang Diadukan</th>
-                                <td><?php echo htmlspecialchars($detail['alamat_diadukan']); ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-file-alt me-1"></i>Jenis Pengaduan</th>
-                                <td><?php echo htmlspecialchars($detail['nama_alternatif']); ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-tasks me-1"></i>Status</th>
-                                <td><strong><span class="status-badge status-<?php echo $detail['status']; ?>"><?php echo ucfirst($detail['status']); ?></span></strong></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-chart-line me-1"></i>Nilai SAW</th>
-                                <td><strong class="ranking-badge"><?php echo number_format($detail['nilai_saw'], 4); ?></strong></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fa-solid fa-trophy me-1"></i>Ranking Prioritas</th>
-                                <td><strong class="ranking-badge"><?php echo $detail['ranking_saw']; ?></strong></td>
-                            </tr>
-                        </table>
+                        <div style="margin-bottom:25px;">
+                            <h5 style="color:#2c3e50; margin-bottom:15px; text-align:center; font-size:1.1rem; font-weight:600;">
+                                DETAIL PENGADUAN
+                            </h5>
+                            <table style="width:100%; border-collapse:collapse; border:1px solid #ddd;">
+                                <tr>
+                                    <td style="width:30%; padding:10px; background:#f8f9fa; border:1px solid #ddd; font-weight:600;">Nama Pengadu</td>
+                                    <td style="width:70%; padding:10px; border:1px solid #ddd;"><?php echo htmlspecialchars($detail['nama_pengadu']); ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px; background:#f8f9fa; border:1px solid #ddd; font-weight:600;">Alamat Pengadu</td>
+                                    <td style="padding:10px; border:1px solid #ddd;"><?php echo htmlspecialchars($detail['alamat_pengadu']); ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px; background:#f8f9fa; border:1px solid #ddd; font-weight:600;">Tanggal Pengaduan</td>
+                                    <td style="padding:10px; border:1px solid #ddd;"><?php echo date('d F Y H:i', strtotime($detail['tanggal_pengaduan'])); ?> WIB</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px; background:#f8f9fa; border:1px solid #ddd; font-weight:600;">Lokasi yang Diadukan</td>
+                                    <td style="padding:10px; border:1px solid #ddd;"><?php echo htmlspecialchars($detail['alamat_diadukan']); ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px; background:#f8f9fa; border:1px solid #ddd; font-weight:600;">Jenis Pengaduan</td>
+                                    <td style="padding:10px; border:1px solid #ddd;"><?php echo htmlspecialchars($detail['nama_alternatif']); ?></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Bukti Pengaduan -->
                         <?php if ($detail['bukti_pengaduan']): ?>
-                        <div class="mt-4" style="margin-bottom:18px;">
-                            <h5><strong><i class="fa-solid fa-image me-2"></i>Bukti Pengaduan:</strong></h5>
-                            <img src="../../<?php echo $detail['bukti_pengaduan']; ?>" 
-                                 class="img-fluid rounded" 
-                                 style="max-width: 400px; border: 2px solid #667eea; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" 
-                                 alt="Bukti Pengaduan">
+                        <div style="margin-bottom:25px;">
+                            <h5 style="color:#2c3e50; margin-bottom:15px; text-align:center; font-size:1.1rem; font-weight:600;">
+                                BUKTI PENDUKUNG
+                            </h5>
+                            <div style="text-align:center; border:1px solid #ddd; padding:20px; background:#f8f9fa;">
+                                <img src="../../<?php echo $detail['bukti_pengaduan']; ?>" 
+                                     class="img-fluid" 
+                                     style="max-width: 400px; border: 1px solid #ddd;" 
+                                     alt="Bukti Pengaduan">
+                            </div>
                         </div>
                         <?php endif; ?>
-                        <div style="margin-bottom:28px;">
-                            <p style="text-align:justify;">
-                                Demikian surat pengaduan ini kami buat agar dapat ditindaklanjuti sebagaimana mestinya. Atas perhatian dan kerjasama Bapak/Ibu, kami ucapkan terima kasih.
+
+                        <!-- Penutup Surat -->
+                        <div style="margin-bottom:30px;">
+                            <p style="text-align:justify; line-height:1.6; margin-bottom:15px;">
+                                Demikian surat pengaduan ini kami buat agar dapat ditindaklanjuti sesuai dengan prosedur dan ketentuan yang berlaku. Atas perhatian dan kerjasama Bapak/Ibu, kami ucapkan terima kasih.
                             </p>
                         </div>
+
                         <!-- Tanda Tangan -->
                         <div class="signature-section">
-                            <div class="signature-box">
-                                <p><i class="fa-solid fa-calendar-check me-1"></i>Dicetak pada:</p>
-                                <p><?php echo date('d/m/Y H:i'); ?></p>
+                            <div class="signature-box" style="text-align:center; width:45%;">
+                                <p style="margin-bottom:5px;"><i class="fa-solid fa-calendar-check me-1"></i>Dicetak pada:</p>
+                                <p style="font-weight:600; margin-bottom:20px;"><?php echo date('d F Y H:i'); ?> WIB</p>
                                 <div class="signature-line"></div>
-                                <p><i class="fa-solid fa-user-cog me-1"></i>Operator Sistem</p>
+                                <p style="margin-top:10px; font-weight:600;"><i class="fa-solid fa-user-cog me-1"></i>Operator Sistem SIPETRUK</p>
+                                <p style="font-size:0.9rem; color:#7f8c8d;">Dinas Pelayanan Masyarakat</p>
                             </div>
-                            <div class="signature-box">
-                                <p><i class="fa-solid fa-map-marker-alt me-1"></i>Jakarta, <?php echo date('d/m/Y'); ?></p>
+                            <div class="signature-box" style="text-align:center; width:45%;">
+                                <p style="margin-bottom:5px;"><i class="fa-solid fa-map-marker-alt me-1"></i>Jakarta, <?php echo date('d F Y'); ?></p>
+                                <p style="margin-bottom:5px; font-weight:600;">Mengetahui,</p>
+                                <p style="margin-bottom:20px; font-weight:600;">Kepala Dinas Pelayanan Masyarakat</p>
                                 <div class="signature-line"></div>
-                                <p><i class="fa-solid fa-user-tie me-1"></i><?php echo htmlspecialchars($detail['nama_pengadu']); ?></p>
+                                <p style="margin-top:10px; font-weight:600;"><i class="fa-solid fa-user-tie me-1"></i>Nama Kepala Dinas</p>
+                                <p style="font-size:0.9rem; color:#7f8c8d;">NIP. 123456789012345678</p>
                             </div>
+                        </div>
+
+                        <!-- Footer Surat -->
+                        <div style="text-align:center; margin-top:40px; padding-top:20px; border-top:1px solid #ddd; color:#7f8c8d; font-size:0.8rem;">
+                            <p style="margin-bottom:5px;"><strong>SIPETRUK - Sistem Pengaduan Terpadu</strong></p>
+                            <p style="margin-bottom:0;">Dinas Pelayanan Masyarakat Kota Contoh | www.contoh.go.id</p>
                         </div>
                     </div>
                 </div>
@@ -367,9 +398,12 @@ while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($filtered_list as $pengaduan): ?>
+                                    <?php 
+                                    $no = 1;
+                                    foreach ($filtered_list as $pengaduan): 
+                                    ?>
                                     <tr>
-                                        <td><span class="ranking-badge"><?php echo $pengaduan['ranking_saw']; ?></span></td>
+                                        <td><span class="ranking-badge"><?php echo $no++; ?></span></td>
                                         <td><strong><?php echo htmlspecialchars($pengaduan['nama_pengadu']); ?></strong></td>
                                         <td><?php echo htmlspecialchars($pengaduan['nama_alternatif']); ?></td>
                                         <td><small class="text-muted"><?php echo htmlspecialchars($pengaduan['alamat_diadukan']); ?></small></td>
@@ -392,3 +426,4 @@ while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
     </div>
 </body>
 </html>
+

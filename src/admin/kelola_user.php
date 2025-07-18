@@ -32,6 +32,30 @@ if (isset($_POST['tambah_user'])) {
     }
 }
 
+// Proses edit user
+if (isset($_POST['edit_user'])) {
+    $user_id = mysqli_real_escape_string($conn, $_POST['user_id']);
+    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $role = $_POST['role'];
+    $password = $_POST['password'];
+    
+    if (!empty($password)) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $update_query = "UPDATE users SET nama='$nama', email='$email', role='$role', password='$hash' WHERE user_id='$user_id'";
+    } else {
+        $update_query = "UPDATE users SET nama='$nama', email='$email', role='$role' WHERE user_id='$user_id'";
+    }
+    
+    if (mysqli_query($conn, $update_query)) {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+        echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"User berhasil diupdate!",timer:1500,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"});});</script>';
+    } else {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+        echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"error",title:"Gagal",text:"Gagal mengupdate user!",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(231, 76, 60, 0.3)"});});</script>';
+    }
+}
+
 // Proses hapus user
 if (isset($_POST['hapus_user'])) {
     $user_id = $_POST['user_id'];
@@ -41,10 +65,25 @@ if (isset($_POST['hapus_user'])) {
         echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
         echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"error",title:"Gagal",text:"Tidak dapat menghapus akun sendiri!",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(231, 76, 60, 0.3)"});});</script>';
     } else {
+        // Cek apakah user memiliki data pengaduan
+        $cek_pengaduan = mysqli_query($conn, "SELECT COUNT(*) as total FROM pengaduan WHERE user_id = $user_id");
+        $jumlah_pengaduan = mysqli_fetch_assoc($cek_pengaduan)['total'];
+        
+        if ($jumlah_pengaduan > 0) {
+            // Jika ada pengaduan, hapus pengaduan terlebih dahulu
+            $delete_pengaduan = "DELETE FROM pengaduan WHERE user_id = $user_id";
+            mysqli_query($conn, $delete_pengaduan);
+        }
+        
+        // Kemudian hapus user
         $delete_query = "DELETE FROM users WHERE user_id = $user_id";
         if (mysqli_query($conn, $delete_query)) {
+            $message = "User berhasil dihapus!";
+            if ($jumlah_pengaduan > 0) {
+                $message .= " ($jumlah_pengaduan data pengaduan juga dihapus)";
+            }
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"User berhasil dihapus!",timer:1500,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"});});</script>';
+            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"'.$message.'",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"});});</script>';
         } else {
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
             echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"error",title:"Gagal",text:"Gagal menghapus user!",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(231, 76, 60, 0.3)"});});</script>';
@@ -182,7 +221,6 @@ $result = mysqli_query($conn, $query);
             vertical-align: middle;
         }
         .table-responsive {
-            border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
@@ -209,7 +247,7 @@ $result = mysqli_query($conn, $query);
                 
                 <hr class="my-3">
                 
-                <a class="nav-link text-white-50 mb-2" href="../logout.php">
+                <a class="nav-link text-white-50 mb-2" href="#" onclick="konfirmasiLogout()">
                     <i class="fa-solid fa-sign-out-alt me-2"></i>
                     Logout
                 </a>
@@ -344,24 +382,113 @@ $result = mysqli_query($conn, $query);
         </div>
     </div>
 
+    <!-- Modal Edit User -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post">
+                    <div class="modal-header bg-warning text-white">
+                        <h5 class="modal-title"><i class="fa-solid fa-user-edit me-2"></i>Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="user_id" id="edit_user_id">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-user me-2"></i>Username</label>
+                            <input type="text" class="form-control" id="edit_username" readonly disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-signature me-2"></i>Nama Lengkap</label>
+                            <input type="text" class="form-control" name="nama" id="edit_nama" required placeholder="Masukkan nama lengkap">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-envelope me-2"></i>Email</label>
+                            <input type="email" class="form-control" name="email" id="edit_email" required placeholder="Masukkan email">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-lock me-2"></i>Password Baru (Kosongkan jika tidak ingin mengubah)</label>
+                            <input type="password" class="form-control" name="password" placeholder="Masukkan password baru">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fa-solid fa-user-tag me-2"></i>Role</label>
+                            <select class="form-select" name="role" id="edit_role" required>
+                                <option value="">-- Pilih Role --</option>
+                                <option value="pengadu">Pengadu</option>
+                                <option value="bidang">Bidang</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-times me-1"></i>Batal
+                        </button>
+                        <button type="submit" class="btn btn-warning" name="edit_user">
+                            <i class="fa-solid fa-save me-1"></i>Update
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Hapus -->
+    <form method="post" id="hapusForm" style="display: none;">
+        <input type="hidden" name="user_id" id="hapus_user_id">
+        <input type="hidden" name="hapus_user" value="1">
+    </form>
+
+    <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
+    
     <script>
+        function konfirmasiLogout() {
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Apakah Anda yakin ingin keluar dari sistem?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Logout!',
+                cancelButtonText: 'Batal',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: 'rgba(0, 0, 0, 0.3)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '../logout.php';
+                }
+            });
+        }
+        
         function editUser(userId, username, nama, email, role) {
-            // Implementasi edit user (bisa menggunakan modal atau redirect)
-            alert('Fitur edit user akan diimplementasikan');
+            document.getElementById('edit_user_id').value = userId;
+            document.getElementById('edit_username').value = username;
+            document.getElementById('edit_nama').value = nama;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_role').value = role;
+            
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
         }
         
         function hapusUser(userId, username) {
-            if (confirm('Apakah Anda yakin ingin menghapus user "' + username + '"?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = '<input type="hidden" name="user_id" value="' + userId + '">' +
-                               '<input type="hidden" name="hapus_user" value="1">';
-                document.body.appendChild(form);
-                form.submit();
-            }
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus user "' + username + '"? Semua data pengaduan terkait juga akan dihapus.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: 'rgba(231, 76, 60, 0.3)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('hapus_user_id').value = userId;
+                    document.getElementById('hapusForm').submit();
+                }
+            });
         }
     </script>
-
-    <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
 </body>
 </html>

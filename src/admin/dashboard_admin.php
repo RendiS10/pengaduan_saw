@@ -181,14 +181,14 @@ $profil = mysqli_fetch_assoc($result);
                     Dashboard
                 </a>
                 
-                <a class="nav-link text-white-50 mb-2" href="kelola_user.php">
+                <a class="nav-link text-white mb-2" href="kelola_user.php">
                     <i class="fa-solid fa-users me-2"></i>
                     Kelola User
                 </a>
                 
                 <hr class="my-3">
                 
-                <a class="nav-link text-white-50 mb-2" href="../logout.php">
+                <a class="nav-link text-white-50 mb-2" href="#" onclick="konfirmasiLogout()">
                     <i class="fa-solid fa-sign-out-alt me-2"></i>
                     Logout
                 </a>
@@ -399,5 +399,26 @@ $profil = mysqli_fetch_assoc($result);
     ?>
 
     <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
+    
+    <script>
+        function konfirmasiLogout() {
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Apakah Anda yakin ingin keluar dari sistem?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Logout!',
+                cancelButtonText: 'Batal',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: 'rgba(0, 0, 0, 0.3)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '../logout.php';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

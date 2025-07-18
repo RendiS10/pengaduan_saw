@@ -287,7 +287,7 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                             ?>
                                 <tr class="<?php echo $priority_class; ?>" data-status="<?php echo $pengaduan['status']; ?>">
                                 <td class="text-center">
-                                    <span class="ranking-badge"><?php echo $pengaduan['ranking_saw']; ?></span>
+                                    <span class="ranking-badge"><?php echo $no++; ?></span>
                                 </td>
                                 <td>
                                     <strong><?php echo htmlspecialchars($pengaduan['nama_pengadu']); ?></strong><br>

@@ -243,7 +243,7 @@ $result = mysqli_query($conn, $query);
                                                         title="Hapus Pengaduan">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
-                                            <?php elseif ($pengaduan['status'] !== 'diproses'): ?>
+                                            <?php elseif ($pengaduan['status'] === 'diajukan'): ?>
                                                 <button type="button" class="btn btn-sm btn-outline-warning btn-action" 
                                                         onclick="editPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"
                                                         title="Edit Pengaduan">
@@ -254,9 +254,15 @@ $result = mysqli_query($conn, $query);
                                                         title="Hapus Pengaduan">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
+                                            <?php elseif ($pengaduan['status'] === 'selesai'): ?>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-action" 
+                                                        onclick="hapusPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"
+                                                        title="Hapus Pengaduan">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
                             </tr>
                         <?php endwhile; ?>
                         </tbody>
