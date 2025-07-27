@@ -15,12 +15,12 @@ if (isset($_POST['ajukan'])) {
     $alamat_diadukan = mysqli_real_escape_string($conn, $_POST['alamat_diadukan']);
     $alternatif = mysqli_real_escape_string($conn, $_POST['alternatif']);
     
-    // Ambil nilai kriteria berdasarkan alternatif yang dipilih
+    // Ambil nilai kriteria berdasarkan alternatif
     $query = "SELECT * FROM nilai_alternatif WHERE alternatif = '$alternatif'";
     $result = mysqli_query($conn, $query);
     $nilai_alt = mysqli_fetch_assoc($result);
     
-    // Mapping nilai ke string untuk database
+    // Mapping nilai ke string
     $tingkat_urgensi_map = [
         5 => 'Sangat Mendesak',
         4 => 'Mendesak', 
@@ -68,9 +68,7 @@ if (isset($_POST['ajukan'])) {
     
     if ($upload_ok && move_uploaded_file($bukti['tmp_name'], $target_file)) {
         $bukti_path = 'public/image/' . $file_name;
-        
-        // Hitung lama laporan (dalam hari) - selalu 1 hari untuk pengaduan baru
-        $lama_laporan = 1;
+        $lama_laporan = 1; // pengaduan baru
         
         $sql = "INSERT INTO pengaduan (
             user_id, nama_pengadu, alamat_pengadu, alamat_diadukan, alternatif, bukti_pengaduan,
@@ -85,12 +83,10 @@ if (isset($_POST['ajukan'])) {
         )";
         
         if (mysqli_query($conn, $sql)) {
-            // Hitung SAW untuk pengaduan yang baru dibuat
             $saw = new SAWCalculator($conn);
             $saw->calculateAllPengaduan();
-            
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil diajukan dan telah diproses dengan sistem SAW.",timer:2000,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"}).then(()=>{window.location.href="dashboard_pengadu.php";});});</script>';
+            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil!",text:"Pengaduan berhasil diajukan dan telah diproses dengan sistem SAW.",timer:2000,showConfirmButton:false}).then(()=>{window.location.href="dashboard_pengadu.php";});});</script>';
             exit;
         } else {
             echo '<div class="alert alert-danger mt-3">Gagal menyimpan pengaduan ke database.</div>';
@@ -103,8 +99,8 @@ if (isset($_POST['ajukan'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ajukan Pengaduan</title>
   <?php include_once(__DIR__ . '/../template/cdn_head.php'); ?>
   <style>
@@ -125,21 +121,11 @@ if (isset($_POST['ajukan'])) {
     <h3 class="animated-title text-center mb-4"><i class="fa-solid fa-paper-plane text-primary me-2"></i> Ajukan Pengaduan</h3>
     <div class="card p-4" style="max-width: 700px; margin: 0 auto; margin-top: 30px;">
       <form method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label class="form-label"><i class="fa-solid fa-user me-1"></i> Nama Pengadu:</label>
-          <input type="text" class="form-control" name="nama_pengadu" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label"><i class="fa-solid fa-location-dot me-1"></i> Alamat Pengadu:</label>
-          <input type="text" class="form-control" name="alamat_pengadu" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label"><i class="fa-solid fa-map-marker-alt me-1"></i> Alamat yang Diadukan: <b>(Direkomendasikan Titik Koordinat Google Maps)</b></label>
-          <input type="text" class="form-control" name="alamat_diadukan" required>
-        </div>
+        <!-- Dropdown Alternatif -->
         <div class="mb-3">
           <label class="form-label"><i class="fa-solid fa-list me-1"></i> Pilih Jenis Pengaduan</label>
-          <select class="form-select" name="alternatif" required>
+          <select class="form-select" name="alternatif" id="select-alternatif" required>
+            <option value="">-- Pilih Jenis Pengaduan --</option>
             <option value="A1">Longsor di Area Pemakaman</option>
             <option value="A2">Saluran Drainase Tersumbat</option>
             <option value="A3">Aduan Mengenai Bangunan Tak Berizin di Kawasan Padat</option>
@@ -147,14 +133,47 @@ if (isset($_POST['ajukan'])) {
             <option value="A5">Aduan IRK, PBG, KRK, IKTR Mengenai Administrasi Pemberkasan</option>
           </select>
         </div>
-        <div class="mb-3">
-          <label class="form-label"><i class="fa-solid fa-image me-1"></i> Bukti Pengaduan (Upload Foto):</label>
-          <input type="file" class="form-control" name="bukti_pengaduan" accept="image/*" required>
+
+        <!-- Form lanjutan yang disembunyikan -->
+        <div id="form-lanjutan" style="display: none;">
+          <div class="mb-3">
+            <label class="form-label"><i class="fa-solid fa-user me-1"></i> Nama Pengadu:</label>
+            <input type="text" class="form-control" name="nama_pengadu" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fa-solid fa-location-dot me-1"></i> Alamat Pengadu:</label>
+            <input type="text" class="form-control" name="alamat_pengadu" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fa-solid fa-map-marker-alt me-1"></i> Alamat yang Diadukan: <b>(Direkomendasikan Titik Koordinat Google Maps)</b></label>
+            <input type="text" class="form-control" name="alamat_diadukan" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><i class="fa-solid fa-image me-1"></i> Bukti Pengaduan (Upload Foto):</label>
+            <input type="file" class="form-control" name="bukti_pengaduan" accept="image/*" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" name="ajukan"><i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan</button>
         </div>
-        <button type="submit" class="btn btn-primary w-100" name="ajukan"><i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan</button>
       </form>
     </div>
   </div>
+
   <?php include_once(__DIR__ . '/../template/cdn_footer.php'); ?>
+
+  <!-- JavaScript untuk menampilkan form setelah memilih alternatif -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const selectAlternatif = document.getElementById('select-alternatif');
+      const formLanjutan = document.getElementById('form-lanjutan');
+
+      selectAlternatif.addEventListener('change', function () {
+        if (this.value !== "") {
+          formLanjutan.style.display = 'block';
+        } else {
+          formLanjutan.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
