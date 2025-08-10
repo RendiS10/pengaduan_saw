@@ -270,7 +270,7 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                                     <th width="15%"><i class="fa-solid fa-user me-1"></i>Pengadu</th>
                                     <th width="20%"><i class="fa-solid fa-file-alt me-1"></i>Jenis Pengaduan</th>
                                     <th width="15%"><i class="fa-solid fa-map-marker-alt me-1"></i>Alamat Diadukan</th>
-                                    <th width="10%"><i class="fa-solid fa-chart-bar me-1"></i>Nilai SAW</th>
+                                    <th width="10%"><i class="fa-solid fa-chart-bar me-1"></i>Nilai Preferensi</th>
                                     <th width="10%"><i class="fa-solid fa-tasks me-1"></i>Status</th>
                                     <th width="10%"><i class="fa-solid fa-calendar me-1"></i>Tanggal</th>
                                     <th width="15%"><i class="fa-solid fa-cogs me-1"></i>Aksi</th>
