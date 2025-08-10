@@ -127,9 +127,9 @@ if (isset($_POST['ajukan'])) {
           <select class="form-select" name="alternatif" id="select-alternatif" required>
             <option value="">-- Pilih Jenis Pengaduan --</option>
             <option value="A1">Longsor di Area Pemakaman</option>
-            <option value="A2">Saluran Drainase Tersumbat</option>
+            <option value="A2">Jalan Akses Menuju Pemakaman Rusak Parah</option>
             <option value="A3">Aduan Mengenai Bangunan Tak Berizin di Kawasan Padat</option>
-            <option value="A4">Tumpukan sampah liar di lahan kosong</option>
+            <option value="A4">Tumpukan Sampah Liar di Lahan Pemakaman</option>
             <option value="A5">Aduan IRK, PBG, KRK, IKTR Mengenai Administrasi Pemberkasan</option>
           </select>
         </div>
