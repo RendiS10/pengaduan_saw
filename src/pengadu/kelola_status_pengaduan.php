@@ -23,8 +23,19 @@ if (isset($_POST['hapus_pengaduan'])) {
 
         $delete_query = "DELETE FROM pengaduan WHERE id_pengaduan = $id_pengaduan AND user_id = $user_id";
         if (mysqli_query($conn, $delete_query)) {
-            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-            echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"Pengaduan berhasil dihapus!",timer:1500,showConfirmButton:false,background:"rgba(255, 255, 255, 0.95)",backdrop:"rgba(0, 184, 148, 0.3)"});});</script>';
+            $_SESSION['alert'] = [
+                'type' => 'success',
+                'title' => 'Berhasil',
+                'message' => 'Pengaduan berhasil dihapus!'
+            ];
+            header('Location: kelola_status_pengaduan.php');
+            exit;
+        } else {
+            $_SESSION['alert'] = [
+                'type' => 'error',
+                'title' => 'Gagal',
+                'message' => 'Gagal menghapus pengaduan!'
+            ];
         }
     }
 }
@@ -78,9 +89,8 @@ $result = mysqli_query($conn, $query);
           transform: scale(1.1);
       }
       .status-diajukan { background: #ffeaa7; color: #d63031; }
-      .status-diproses { background: #74b9ff; color: #0984e3; }
-      .status-selesai  { background: #55a3ff; color: #00b894; }
-      .status-ditolak  { background: #fab1a0; color: #c0392b; }
+      .status-ditolak { background: #ff7675; color: #d63031; }
+      .status-disetujui { background: #55a3ff; color: #00b894; }
       .btn-action { 
           transition: all 0.3s ease;
           border-radius: 8px;
@@ -199,7 +209,7 @@ $result = mysqli_query($conn, $query);
                     <table class="table table-hover align-middle mb-0">
                             <thead>
                             <tr>
-                                <th></i>No</th>
+                                <th><i class="fa-solid fa-hashtag me-1"></i>No</th>
                                 <th><i class="fa-solid fa-file-alt me-1"></i>Jenis Pengaduan</th>
                                 <th><i class="fa-solid fa-calendar me-1"></i>Tanggal</th>
                                 <th><i class="fa-solid fa-tasks me-1"></i>Status</th>
@@ -213,23 +223,23 @@ $result = mysqli_query($conn, $query);
                                 <td align="center"><?= $no++; ?></td>
                                 <td><strong><?= htmlspecialchars($pengaduan['nama_alternatif']); ?></strong></td>
                                 <td><small class="text-muted"><i class="fa-solid fa-calendar me-1"></i> <?= date('d/m/Y H:i', strtotime($pengaduan['tanggal_pengaduan'])); ?></small></td>
-                                    <td>
-                                        <span class="status-badge status-<?= $pengaduan['status']; ?>">
-                                            <i class="fa-solid fa-<?= $pengaduan['status'] == 'selesai' ? 'check-circle' : ($pengaduan['status'] == 'diproses' ? 'spinner' : ($pengaduan['status'] == 'ditolak' ? 'times-circle' : 'clock')); ?> me-1"></i>
-                                            <?= ucfirst($pengaduan['status']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if ($pengaduan['bukti_pengaduan']): ?>
-                                            <img src="../../<?= $pengaduan['bukti_pengaduan']; ?>" 
-                                                 class="img-fluid rounded" 
-                                                 style="max-height: 60px; width: 80px; object-fit: cover;" 
-                                                 alt="Bukti Pengaduan"
-                                                 title="Klik untuk melihat">
-                                        <?php else: ?>
-                                            <span class="text-muted"><i class="fa-solid fa-image"></i> Tidak ada</span>
-                                        <?php endif; ?>
-                                    </td>
+                                <td>
+                                    <span class="status-badge status-<?= $pengaduan['status']; ?>">
+                                        <i class="fa-solid fa-<?= $pengaduan['status'] == 'disetujui' ? 'check-circle' : ($pengaduan['status'] == 'ditolak' ? 'times-circle' : 'clock'); ?> me-1"></i>
+                                        <?= ucfirst($pengaduan['status']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($pengaduan['bukti_pengaduan']): ?>
+                                        <img src="../../<?= $pengaduan['bukti_pengaduan']; ?>" 
+                                             class="img-fluid rounded" 
+                                             style="max-height: 60px; width: 80px; object-fit: cover;" 
+                                             alt="Bukti Pengaduan"
+                                             title="Klik untuk melihat">
+                                    <?php else: ?>
+                                        <span class="text-muted"><i class="fa-solid fa-image"></i> Tidak ada</span>
+                                    <?php endif; ?>
+                                </td>
                                     <td>
                                         <div class="btn-group" role="group">
                                             <button type="button" class="btn btn-sm btn-outline-primary btn-action" 
@@ -254,7 +264,7 @@ $result = mysqli_query($conn, $query);
                                                         title="Hapus Pengaduan">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
-                                            <?php elseif ($pengaduan['status'] === 'selesai'): ?>
+                                            <?php elseif ($pengaduan['status'] === 'disetujui'): ?>
                                                 <button type="button" class="btn btn-sm btn-outline-danger btn-action" 
                                                         onclick="hapusPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"
                                                         title="Hapus Pengaduan">
@@ -356,6 +366,27 @@ document.getElementById('editModal').addEventListener('hidden.bs.modal', () => {
     document.getElementById('editContent').innerHTML = '';
 });
 </script>
+
+<!-- Alert Session Script -->
+<?php if (isset($_SESSION['alert'])): ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: '<?= $_SESSION['alert']['type']; ?>',
+            title: '<?= $_SESSION['alert']['title']; ?>',
+            text: '<?= $_SESSION['alert']['message']; ?>',
+            timer: 1500,
+            showConfirmButton: false,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdrop: 'rgba(0, 184, 148, 0.3)'
+        });
+    });
+</script>
+<?php 
+    unset($_SESSION['alert']); // Hapus session alert setelah ditampilkan
+endif; 
+?>
 
 <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
 </body>

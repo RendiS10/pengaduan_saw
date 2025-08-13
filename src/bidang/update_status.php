@@ -16,16 +16,24 @@ if (isset($_POST['update_status'])) {
     
     $query = "UPDATE pengaduan SET status = '$status_baru' WHERE id_pengaduan = $id_pengaduan";
     if (mysqli_query($conn, $query)) {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"success",title:"Berhasil",text:"Status pengaduan berhasil diupdate!",timer:1500,showConfirmButton:false});});</script>';
+        $_SESSION['alert'] = [
+            'type' => 'success',
+            'title' => 'Berhasil',
+            'message' => 'Status pengaduan berhasil diupdate!'
+        ];
+        header('Location: update_status.php');
+        exit;
     } else {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){Swal.fire({icon:"error",title:"Gagal",text:"Gagal update status pengaduan!",timer:1500,showConfirmButton:false});});</script>';
+        $_SESSION['alert'] = [
+            'type' => 'error',
+            'title' => 'Gagal',
+            'message' => 'Gagal update status pengaduan!'
+        ];
     }
 }
 
-// Ambil daftar pengaduan dengan ranking SAW
-$pengaduan_list = $saw->getPengaduanWithRanking();
+// Ambil daftar pengaduan dengan ranking SAW - hanya yang berstatus "diajukan"
+$pengaduan_list = $saw->getPengaduanWithRanking('diajukan');
 ?>
 
 <!DOCTYPE html>
@@ -97,8 +105,8 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
             transform: scale(1.1);
         }
         .status-diajukan { background: #ffeaa7; color: #d63031; }
-        .status-diproses { background: #74b9ff; color: #0984e3; }
-        .status-selesai { background: #55a3ff; color: #00b894; }
+        .status-ditolak { background: #ff7675; color: #d63031; }
+        .status-disetujui { background: #55a3ff; color: #00b894; }
         .table-responsive { 
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
@@ -204,7 +212,8 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                 <div class="d-flex justify-content-between align-items-center">
             <div>
                         <h1><i class="fa-solid fa-list-check me-2"></i> Update Status Pengaduan</h1>
-                        <p><i class="fa-solid fa-chart-line me-2"></i> Kelola pengaduan berdasarkan prioritas SAW (Simple Additive Weighting)</p>
+                        <p><i class="fa-solid fa-chart-line me-2"></i> Kelola pengaduan yang menunggu proses berdasarkan prioritas SAW (Simple Additive Weighting)</p>
+                        <small class="text-light"><i class="fa-solid fa-info-circle me-1"></i> Pengaduan yang sudah ditolak atau disetujui akan otomatis disembunyikan dari daftar ini</small>
             </div>
                     <div class="action-buttons d-flex gap-2">
                         <!-- Hapus tombol cetak -->
@@ -250,15 +259,11 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
         <!-- Tabel Pengaduan -->
         <div class="card">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fa-solid fa-table me-2"></i>Daftar Pengaduan (Diurutkan berdasarkan SAW)</h5>
+                <h5 class="mb-0"><i class="fa-solid fa-table me-2"></i>Daftar Pengaduan Menunggu Proses</h5>
                     <div>
-                        <select id="filterStatus" class="form-select form-select-sm" style="width: 180px; display: inline-block;">
-                            <option value="">Semua Status</option>
-                            <option value="diajukan">Diajukan</option>
-                            <option value="diproses">Diproses</option>
-                            <option value="ditolak">Ditolak</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
+                        <span class="badge bg-warning text-dark fs-6">
+                            <i class="fa-solid fa-clock me-1"></i>Status: Diajukan
+                        </span>
                     </div>
             </div>
             <div class="card-body p-0">
@@ -279,13 +284,15 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                         <tbody>
                             <?php 
                             $no = 1;
-                            while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)): 
-                                $priority_class = '';
-                                if ($pengaduan['ranking_saw'] <= 1) $priority_class = 'priority-high';
-                                elseif ($pengaduan['ranking_saw'] <= 3) $priority_class = 'priority-medium';
-                                else $priority_class = 'priority-low';
-                            ?>
-                                <tr class="<?php echo $priority_class; ?>" data-status="<?php echo $pengaduan['status']; ?>">
+                            $total_pengaduan = mysqli_num_rows($pengaduan_list);
+                            if ($total_pengaduan > 0):
+                                while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)): 
+                                    $priority_class = '';
+                                    if ($pengaduan['ranking_saw'] <= 1) $priority_class = 'priority-high';
+                                    elseif ($pengaduan['ranking_saw'] <= 3) $priority_class = 'priority-medium';
+                                    else $priority_class = 'priority-low';
+                                ?>
+                                    <tr class="<?php echo $priority_class; ?>">
                                 <td class="text-center">
                                     <span class="ranking-badge"><?php echo $no++; ?></span>
                                 </td>
@@ -303,7 +310,7 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                                 </td>
                                 <td>
                                     <span class="status-badge status-<?php echo $pengaduan['status']; ?>">
-                                            <i class="fa-solid fa-<?php echo $pengaduan['status'] == 'selesai' ? 'check-circle' : ($pengaduan['status'] == 'diproses' ? 'spinner' : ($pengaduan['status'] == 'ditolak' ? 'times-circle' : 'clock')); ?> me-1"></i>
+                                            <i class="fa-solid fa-<?php echo $pengaduan['status'] == 'disetujui' ? 'check-circle' : ($pengaduan['status'] == 'ditolak' ? 'times-circle' : 'clock'); ?> me-1"></i>
                                         <?php echo ucfirst($pengaduan['status']); ?>
                                     </span>
                                 </td>
@@ -327,6 +334,17 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                                 </td>
                             </tr>
                             <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="fa-solid fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+                                        <h5 class="text-muted">Tidak Ada Pengaduan yang Perlu Diproses</h5>
+                                        <p class="text-muted mb-0">Semua pengaduan telah diproses. Halaman akan otomatis menampilkan pengaduan baru yang memerlukan tindak lanjut.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                     </div>
@@ -349,10 +367,15 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                         <div class="mb-3">
                             <label class="form-label"><i class="fa-solid fa-tasks me-2"></i>Status Baru:</label>
                             <select class="form-select" name="status" required>
-                                <option value="diajukan"><i class="fa-solid fa-clock"></i> Diajukan</option>
-                                <option value="diproses"><i class="fa-solid fa-spinner"></i> Diproses</option>
-                                <option value="ditolak"><i class="fa-solid fa-times-circle"></i> Ditolak</option>
-                                <option value="selesai"><i class="fa-solid fa-times-circle"></i> Selesai</option>
+                                <option value="diajukan">
+                                    <i class="fa-solid fa-clock"></i> Diajukan
+                                </option>
+                                <option value="ditolak">
+                                    <i class="fa-solid fa-times-circle"></i> Ditolak
+                                </option>
+                                <option value="disetujui">
+                                    <i class="fa-solid fa-check-circle"></i> Disetujui
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -438,22 +461,27 @@ $pengaduan_list = $saw->getPengaduanWithRanking();
                     }, 150);
                 });
             });
+        });
+    </script>
 
-            // Filter status
-            const filterStatus = document.getElementById('filterStatus');
-            const rows = document.querySelectorAll('#tabelPengaduan tbody tr');
-            filterStatus.addEventListener('change', function() {
-                const val = this.value;
-                rows.forEach(row => {
-                    if (!val || row.getAttribute('data-status') === val) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+    <!-- Alert Session Script -->
+    <?php if (isset($_SESSION['alert'])): ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: '<?= $_SESSION['alert']['type']; ?>',
+                title: '<?= $_SESSION['alert']['title']; ?>',
+                text: '<?= $_SESSION['alert']['message']; ?>',
+                timer: 1500,
+                showConfirmButton: false
             });
         });
     </script>
+    <?php 
+        unset($_SESSION['alert']); // Hapus session alert setelah ditampilkan
+    endif; 
+    ?>
 
     <?php include_once(__DIR__.'/../template/cdn_footer.php'); ?>
 </body>

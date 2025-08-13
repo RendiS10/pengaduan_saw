@@ -14,9 +14,9 @@ $detail = null;
 if (isset($_GET['id'])) {
     $id_pengaduan = $_GET['id'];
     $detail = $saw->getDetailSAW($id_pengaduan);
-    // Batasi hanya status 'diproses' yang bisa dicetak
-    if ($detail && $detail['status'] !== 'diproses') {
-        echo '<script>alert("Hanya pengaduan dengan status DIPROSES yang dapat dicetak!");window.location.href="cetak_aduan.php";</script>';
+    // Batasi hanya status 'disetujui' yang bisa dicetak
+    if ($detail && $detail['status'] !== 'disetujui') {
+        echo '<script>alert("Hanya pengaduan dengan status DISETUJUI yang dapat dicetak!");window.location.href="cetak_aduan.php";</script>';
         exit;
     }
 }
@@ -24,10 +24,10 @@ if (isset($_GET['id'])) {
 // Ambil semua pengaduan untuk daftar
 $pengaduan_list = $saw->getPengaduanWithRanking();
 
-// Filter hanya pengaduan dengan status 'diproses'
+// Filter hanya pengaduan dengan status 'disetujui'
 $filtered_list = [];
 while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
-    if ($pengaduan['status'] === 'diproses') {
+    if ($pengaduan['status'] === 'disetujui') {
         $filtered_list[] = $pengaduan;
     }
 }
@@ -223,8 +223,8 @@ while ($pengaduan = mysqli_fetch_assoc($pengaduan_list)) {
             font-size: 0.8rem;
         }
         .status-diajukan { background: #ffeaa7; color: #d63031; }
-        .status-diproses { background: #74b9ff; color: #0984e3; }
-        .status-selesai { background: #55a3ff; color: #00b894; }
+        .status-ditolak { background: #ff7675; color: #d63031; }
+        .status-disetujui { background: #55a3ff; color: #00b894; }
         .table {
             margin-bottom: 0;
             font-size: 0.9rem;

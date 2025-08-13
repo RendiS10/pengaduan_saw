@@ -16,6 +16,11 @@
         Update Status Pengaduan
       </a>
       
+      <a class="nav-link text-white-50 mb-2" href="riwayat_pengaduan.php">
+        <i class="fa-solid fa-history me-2"></i>
+        Riwayat Pengaduan
+      </a>
+      
       <a class="nav-link text-white-50 mb-2" href="cetak_aduan.php">
         <i class="fa-solid fa-print me-2"></i>
         Cetak Pengaduan

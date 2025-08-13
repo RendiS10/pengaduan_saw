@@ -9,11 +9,18 @@ include_once '../helpers/saw_calculator.php';
 
 // Proses form pengaduan
 if (isset($_POST['ajukan'])) {
-    $user_id = $_SESSION['user_id'];
-    $nama_pengadu = mysqli_real_escape_string($conn, $_POST['nama_pengadu']);
-    $alamat_pengadu = mysqli_real_escape_string($conn, $_POST['alamat_pengadu']);
-    $alamat_diadukan = mysqli_real_escape_string($conn, $_POST['alamat_diadukan']);
-    $alternatif = mysqli_real_escape_string($conn, $_POST['alternatif']);
+    // Validasi syarat dan ketentuan
+    if (!isset($_POST['syarat_ketentuan']) || !isset($_POST['tanggung_jawab'])) {
+        echo '<div class="alert alert-danger mt-3">
+                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                <strong>Peringatan!</strong> Anda harus menyetujui syarat dan ketentuan terlebih dahulu.
+              </div>';
+    } else {
+        $user_id = $_SESSION['user_id'];
+        $nama_pengadu = mysqli_real_escape_string($conn, $_POST['nama_pengadu']);
+        $alamat_pengadu = mysqli_real_escape_string($conn, $_POST['alamat_pengadu']);
+        $alamat_diadukan = mysqli_real_escape_string($conn, $_POST['alamat_diadukan']);
+        $alternatif = mysqli_real_escape_string($conn, $_POST['alternatif']);
     
     // Ambil nilai kriteria berdasarkan alternatif
     $query = "SELECT * FROM nilai_alternatif WHERE alternatif = '$alternatif'";
@@ -94,6 +101,7 @@ if (isset($_POST['ajukan'])) {
     } else {
         echo '<div class="alert alert-danger mt-3">Gagal upload file. ' . ($error_msg ?? '') . '</div>';
     }
+    } // Tutup blok validasi syarat dan ketentuan
 }
 ?>
 <!DOCTYPE html>
@@ -111,8 +119,35 @@ if (isset($_POST['ajukan'])) {
     .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102,126,234,.15); }
     .btn-primary { background: linear-gradient(90deg, #667eea 60%, #764ba2 100%); border: none; }
     .btn-primary:hover { background: linear-gradient(90deg, #764ba2 60%, #667eea 100%); }
+    .btn-secondary { background: #6c757d; border: none; }
     .animated-title { animation: fadeInDown 1s; }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: none; } }
+    
+    /* Styling untuk syarat dan ketentuan */
+    .form-check-input:checked {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+    .form-check-input:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    .text-sm {
+      font-size: 0.875rem;
+    }
+    .card-body ul li {
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .alert-danger small {
+      line-height: 1.3;
+    }
+    #btnKirim:disabled {
+      cursor: not-allowed;
+    }
+    .border-warning {
+      border-color: #ffc107 !important;
+    }
   </style>
 </head>
 <body class="d-flex">
@@ -149,10 +184,50 @@ if (isset($_POST['ajukan'])) {
             <input type="text" class="form-control" name="alamat_diadukan" required>
           </div>
           <div class="mb-3">
-            <label class="form-label"><i class="fa-solid fa-image me-1"></i> Bukti Pengaduan (Upload Foto):</label>
+            <label class="form-label"><i class="fa-solid fa-image me-1"></i> Bukti Pengaduan (Upload Foto Kejadian):</label>
             <input type="file" class="form-control" name="bukti_pengaduan" accept="image/*" required>
           </div>
-          <button type="submit" class="btn btn-primary w-100" name="ajukan"><i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan</button>
+          
+          <!-- Syarat dan Ketentuan -->
+          <div class="mb-4">
+            <div class="card border-warning">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fa-solid fa-exclamation-triangle me-2"></i>Syarat dan Ketentuan</h6>
+              </div>
+              <div class="card-body">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="syaratKetentuan" name="syarat_ketentuan" required>
+                  <label class="form-check-label" for="syaratKetentuan">
+                    <strong>Saya menyatakan bahwa:</strong>
+                  </label>
+                </div>
+                <ul class="mt-2 mb-3 text-sm">
+                  <li>Data dan informasi yang saya sampaikan adalah <strong>benar</strong> dan sesuai dengan keadaan yang sebenarnya</li>
+                  <li>Bukti pengaduan (foto/dokumen) yang saya lampirkan adalah <strong>asli</strong> dan tidak dimanipulasi</li>
+                  <li>Saya <strong>tidak menyebarkan informasi palsu (hoax)</strong> atau menyesatkan</li>
+                  <li>Saya memahami bahwa penyebaran informasi palsu dapat <strong>dikenakan sanksi pidana</strong> sesuai dengan:</li>
+                </ul>
+                <div class="alert alert-danger py-2 mb-3">
+                  <small>
+                    <strong><i class="fa-solid fa-gavel me-1"></i> Dasar Hukum:</strong><br>
+                    • <strong>UU No. 19 Tahun 2016</strong> tentang Informasi dan Transaksi Elektronik (ITE)<br>
+                    • <strong>Pasal 28 ayat (1)</strong>: Pidana penjara paling lama 6 tahun dan/atau denda paling banyak Rp1 miliar<br>
+                    • <strong>KUHP Pasal 390</strong>: Tentang penyebaran berita bohong
+                  </small>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="tanggungJawab" name="tanggung_jawab" required>
+                  <label class="form-check-label" for="tanggungJawab">
+                    Saya <strong>bertanggung jawab penuh</strong> atas kebenaran data yang saya sampaikan dan siap mempertanggungjawabkannya secara hukum
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100" name="ajukan" id="btnKirim" disabled>
+            <i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan
+          </button>
         </div>
       </form>
     </div>
@@ -165,7 +240,11 @@ if (isset($_POST['ajukan'])) {
     document.addEventListener('DOMContentLoaded', function () {
       const selectAlternatif = document.getElementById('select-alternatif');
       const formLanjutan = document.getElementById('form-lanjutan');
+      const syaratKetentuan = document.getElementById('syaratKetentuan');
+      const tanggungJawab = document.getElementById('tanggungJawab');
+      const btnKirim = document.getElementById('btnKirim');
 
+      // Tampilkan form lanjutan setelah memilih alternatif
       selectAlternatif.addEventListener('change', function () {
         if (this.value !== "") {
           formLanjutan.style.display = 'block';
@@ -173,6 +252,35 @@ if (isset($_POST['ajukan'])) {
           formLanjutan.style.display = 'none';
         }
       });
+
+      // Fungsi untuk mengecek checkbox dan mengaktifkan/menonaktifkan tombol submit
+      function checkboxValidation() {
+        if (syaratKetentuan && tanggungJawab) {
+          btnKirim.disabled = !(syaratKetentuan.checked && tanggungJawab.checked);
+          
+          // Ubah tampilan tombol berdasarkan status
+          if (syaratKetentuan.checked && tanggungJawab.checked) {
+            btnKirim.classList.remove('btn-secondary');
+            btnKirim.classList.add('btn-primary');
+            btnKirim.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Pengaduan';
+          } else {
+            btnKirim.classList.remove('btn-primary');
+            btnKirim.classList.add('btn-secondary');
+            btnKirim.innerHTML = '<i class="fa-solid fa-lock"></i> Setujui Syarat & Ketentuan Terlebih Dahulu';
+          }
+        }
+      }
+
+      // Event listener untuk checkbox
+      if (syaratKetentuan) {
+        syaratKetentuan.addEventListener('change', checkboxValidation);
+      }
+      if (tanggungJawab) {
+        tanggungJawab.addEventListener('change', checkboxValidation);
+      }
+
+      // Jalankan validasi awal
+      checkboxValidation();
     });
   </script>
 </body>
