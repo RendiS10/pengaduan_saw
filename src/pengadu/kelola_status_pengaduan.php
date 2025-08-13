@@ -265,6 +265,11 @@ $result = mysqli_query($conn, $query);
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
                                             <?php elseif ($pengaduan['status'] === 'disetujui'): ?>
+                                                <button type="button" class="btn btn-sm btn-outline-success btn-action" 
+                                                        onclick="cetakSurat(<?= $pengaduan['id_pengaduan']; ?>)"
+                                                        title="Cetak Surat Keterangan">
+                                                    <i class="fa-solid fa-print"></i>
+                                                </button>
                                                 <button type="button" class="btn btn-sm btn-outline-danger btn-action" 
                                                         onclick="hapusPengaduan(<?= $pengaduan['id_pengaduan']; ?>)"
                                                         title="Hapus Pengaduan">
@@ -356,6 +361,11 @@ function hapusPengaduan(id) {
             document.getElementById('hapusForm').submit();
         }
     });
+}
+
+function cetakSurat(id) {
+    // Buka jendela cetak dalam tab/window baru
+    window.open(`cetak_surat_keterangan.php?id=${id}`, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
 }
 
 document.getElementById('detailModal').addEventListener('hidden.bs.modal', () => {

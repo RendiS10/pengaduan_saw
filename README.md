@@ -282,6 +282,8 @@ Update Setelah Prasidang Dari Pak Heri
 
 1. Mengubah Status Pengaduan Menjadi Diajukan, Ditolak , dan disetujui guna tidak keluar dari batasan sistem yang dibuat
 2. Jika bidang sudah pernah edit status pengaduan maka tidak akan ditampilkan lagi di halaman daftar pengaduan yang telah di saw di menu update status pengaduan guna halaman tampil bersih , maka dari itu menambahkan halaman riwayat pengaduan
+3. Menambahkan agar ada sanksi jika ada sembarang data yang masuk
+4. menambahkan tindak lanjut untuk pengadu
 
 - Untuk bidang Mengubah Status Menjadi 2 yaitu disetujui dan ditolak saja
 
@@ -304,3 +306,12 @@ aulia123
 
 teguh
 teguh123
+
+**Data Dummy Pengadu Tambahan:**
+pengadu1 - password
+pengadu2 - password  
+pengadu3 - password
+pengadu4 - password
+pengadu5 - password
+
+_Note: Kelima pengadu dummy ini sudah memiliki data pengaduan dengan berbagai status (diajukan, ditolak, disetujui) untuk testing sistem SAW._
